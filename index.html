@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&family=Sriracha&display=swap" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Tailwind CSS (for layout helper) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
@@ -28,7 +28,6 @@
 
         .font-sriracha { font-family: 'Sriracha', cursive; }
         
-        /* Custom Animations */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-fade { animation: fadeIn 0.5s ease forwards; }
         
@@ -41,31 +40,25 @@
         }
         .fa-beat-custom { animation: heartbeat 1.5s infinite; }
 
-        /* Navigation & Header */
         header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(16px); }
         .nav-link { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: var(--muted); transition: 0.3s; }
         .nav-link:hover, .nav-link.active { color: var(--primary); }
 
-        /* Admin UI */
         #adminBar { background: #1c1917; display: none; }
         #adminBar.active { display: block; }
 
-        /* Pages System */
         .page { display: none; }
         .page.active { display: block; }
 
-        /* Product Cards */
         .product-card { border-radius: 32px; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .product-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px -15px rgba(244, 114, 182, 0.3); border-color: var(--accent); }
         .img-container { aspect-ratio: 3/4; border-radius: 24px; overflow: hidden; position: relative; }
-        .img-container img { transition: 1s; }
+        .img-container img { transition: 1s; height: 100%; width: 100%; object-fit: cover; }
         .product-card:hover img { transform: scale(1.05); }
 
-        /* Modals */
         .modal-overlay { position: fixed; inset: 0; background: rgba(28, 25, 23, 0.6); backdrop-filter: blur(4px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: white; border-radius: 40px; width: 100%; max-width: 500px; padding: 40px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
 
-        /* Search Bar */
         .search-container { width: 40px; transition: 0.5s; overflow: hidden; background: #f5f5f4; border-radius: 99px; display: flex; align-items: center; }
         .search-container.open { width: 250px; padding-right: 15px; }
         .search-input { background: transparent; border: none; outline: none; width: 0; padding: 0; font-size: 12px; transition: 0.5s; }
@@ -73,20 +66,14 @@
 
         .btn-rose { background: var(--primary); color: white; transition: 0.3s; box-shadow: 0 10px 20px -5px rgba(244, 114, 182, 0.4); }
         .btn-rose:hover { background: #db2777; transform: translateY(-2px); }
-
-        /* Custom Scroll */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #fee2e2; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #fecdd3; }
     </style>
 </head>
 <body>
 
     <!-- Loader -->
-    <div id="globalLoader" class="fixed inset-0 bg-white/90 backdrop-blur-md z-[9999] flex flex-col items-center justify-center text-rose-500" style="display: none;">
-        <i class="fas fa-heart fa-beat-custom text-5xl mb-6"></i>
-        <p class="font-bold text-[10px] uppercase tracking-[0.3em]">Syncing Database...</p>
+    <div id="globalLoader" class="fixed inset-0 bg-white/90 backdrop-blur-md z-[9999] flex flex-col items-center justify-center text-rose-50" style="display: none;">
+        <i class="fas fa-heart fa-beat-custom text-5xl text-rose-500 mb-6"></i>
+        <p class="font-bold text-stone-400 text-[10px] uppercase tracking-[0.3em]">Processing...</p>
     </div>
 
     <!-- Admin Bar -->
@@ -111,7 +98,6 @@
                 <button onclick="openLoginModal()" class="p-2.5 text-stone-300 hover:text-rose-400 transition-all hover:bg-rose-50 rounded-full">
                     <i class="fas fa-user-lock text-xl"></i>
                 </button>
-                <!-- Search -->
                 <div id="searchBox" class="search-container">
                     <button onclick="toggleSearch()" class="p-2.5 text-stone-400 hover:text-rose-500">
                         <i class="fas fa-search"></i>
@@ -147,7 +133,7 @@
     <!-- Main Content Area -->
     <div class="max-w-7xl mx-auto px-6 py-12">
         
-        <!-- --- PAGE: HOME --- -->
+        <!-- PAGE: HOME -->
         <div id="page-home" class="page active animate-fade">
             <div class="relative h-[500px] rounded-[50px] overflow-hidden group shadow-2xl mb-24">
                 <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200" class="w-full h-full object-cover">
@@ -171,7 +157,7 @@
             <div id="homeGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-8"></div>
         </div>
 
-        <!-- --- PAGE: SHOP --- -->
+        <!-- PAGE: SHOP -->
         <div id="page-shop" class="page animate-fade">
             <div class="flex flex-col md:flex-row gap-12">
                 <aside class="w-full md:w-64">
@@ -196,12 +182,12 @@
             </div>
         </div>
 
-        <!-- --- PAGE: DETAIL --- -->
+        <!-- PAGE: DETAIL -->
         <div id="page-detail" class="page animate-fade">
             <div id="detailContent"></div>
         </div>
 
-        <!-- --- PAGE: CART --- -->
+        <!-- PAGE: CART -->
         <div id="page-cart" class="page animate-fade max-w-4xl mx-auto">
             <div class="text-center mb-16">
                 <h2 class="text-4xl font-sriracha text-stone-800">Shopping Bag</h2>
@@ -217,7 +203,7 @@
             </div>
         </div>
 
-        <!-- --- PAGE: CONTACT --- -->
+        <!-- PAGE: CONTACT -->
         <div id="page-contact" class="page animate-fade max-w-4xl mx-auto">
             <div class="text-center mb-20">
                 <h2 class="text-5xl font-sriracha text-stone-800">Get in Touch</h2>
@@ -258,7 +244,6 @@
     </footer>
 
     <!-- Modals -->
-    <!-- Login -->
     <div id="loginModal" class="modal-overlay">
         <div class="modal-content text-center">
             <h3 class="text-3xl font-sriracha mb-8">Admin Login</h3>
@@ -268,7 +253,6 @@
         </div>
     </div>
 
-    <!-- Product Form -->
     <div id="productModal" class="modal-overlay">
         <div class="modal-content max-w-lg">
             <h3 id="formTitle" class="text-3xl font-sriracha mb-6">จัดการสินค้า</h3>
@@ -286,13 +270,12 @@
                 </div>
                 <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">รูปภาพ (URL)</label><input type="text" id="p_img" class="w-full bg-stone-50 p-3 rounded-xl outline-none"></div>
                 <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">รายละเอียด</label><textarea id="p_desc" class="w-full bg-stone-50 p-3 rounded-xl outline-none h-24"></textarea></div>
-                <button type="submit" class="btn-rose w-full py-4 rounded-3xl font-bold uppercase tracking-widest text-xs">บันทึกลง Excel</button>
+                <button type="submit" id="submitBtn" class="btn-rose w-full py-4 rounded-3xl font-bold uppercase tracking-widest text-xs">บันทึกลง Excel</button>
             </form>
             <button onclick="closeModals()" class="w-full mt-2 py-3 text-stone-300 text-xs">ยกเลิก</button>
         </div>
     </div>
 
-    <!-- Contact Settings -->
     <div id="settingsModal" class="modal-overlay">
         <div class="modal-content">
             <h3 class="text-3xl font-sriracha mb-8">ข้อมูลร้านค้า</h3>
@@ -307,7 +290,6 @@
     </div>
 
     <script>
-        // --- States ---
         let products = [];
         let storeSettings = { facebook: '#', line: '@praewa', phone: '081-XXX-XXXX' };
         let cart = [];
@@ -316,7 +298,6 @@
         let searchQuery = '';
         let apiUrl = localStorage.getItem('praewa_api_url') || '';
 
-        // --- Initialization ---
         window.onload = async () => {
             if (apiUrl) await fetchData();
             else renderProducts();
@@ -333,7 +314,6 @@
                 renderProducts();
             } catch (e) {
                 console.error(e);
-                alert("โหลดข้อมูลไม่สำเร็จ ตรวจสอบ API URL");
             }
             showLoader(false);
         }
@@ -346,7 +326,6 @@
             document.getElementById('textPhone').innerText = storeSettings.phone;
         }
 
-        // --- Core Rendering ---
         function renderProducts() {
             const filtered = products.filter(p => {
                 const matchSearch = p.Name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -376,7 +355,7 @@
             `).join('');
 
             document.getElementById('shopGrid').innerHTML = gridHtml || '<p class="col-span-full py-20 text-center text-stone-300 italic">ไม่พบสินค้าที่คุณต้องการค่ะ</p>';
-            document.getElementById('homeGrid').innerHTML = filtered.slice(0, 4).map(p => `
+            document.getElementById('homeGrid').innerHTML = products.slice(0, 4).map(p => `
                 <div class="product-card group bg-white p-4 border border-rose-50 relative">
                     <div class="img-container cursor-pointer" onclick="viewDetail('${p.ID}')">
                         <img src="${p.Image || 'https://via.placeholder.com/400x533'}" class="w-full h-full object-cover">
@@ -421,14 +400,9 @@
             showPage('detail');
         }
 
-        // --- Cart System ---
         function addToCart(id) {
             const p = products.find(x => x.ID == id);
-            if (p) {
-                cart.push(p);
-                updateCartUI();
-                alert("เพิ่มลงตะกร้าแล้วค่ะ 💖");
-            }
+            if (p) { cart.push(p); updateCartUI(); alert("เพิ่มลงตะกร้าแล้วค่ะ 💖"); }
         }
 
         function updateCartUI() {
@@ -438,27 +412,13 @@
             let total = 0;
 
             if (cart.length === 0) {
-                list.innerHTML = `
-                    <div class="bg-white p-24 rounded-[60px] text-center shadow-xl border border-rose-50">
-                        <i class="fas fa-shopping-bag text-5xl text-rose-100 mb-6"></i>
-                        <p class="text-stone-400 text-sm">ยังไม่มีสินค้าในตะกร้าเลยค่ะ</p>
-                        <button onclick="showPage('shop')" class="mt-8 bg-stone-900 text-white px-10 py-3 rounded-full text-xs font-bold uppercase">Shop Now</button>
-                    </div>`;
+                list.innerHTML = `<div class="bg-white p-24 rounded-[60px] text-center shadow-xl border border-rose-50"><i class="fas fa-shopping-bag text-5xl text-rose-100 mb-6"></i><p class="text-stone-400 text-sm">ยังไม่มีสินค้าในตะกร้าเลยค่ะ</p><button onclick="showPage('shop')" class="mt-8 bg-stone-900 text-white px-10 py-3 rounded-full text-xs font-bold uppercase">Shop Now</button></div>`;
                 document.getElementById('cartSummary').style.display = 'none';
                 badge.style.display = 'none';
             } else {
                 list.innerHTML = cart.map((item, i) => {
                     total += Number(item.Price);
-                    return `
-                        <div class="bg-white p-6 md:p-8 rounded-[40px] shadow-sm border border-rose-50 flex items-center gap-8">
-                            <img src="${item.Image}" class="w-20 h-28 object-cover rounded-2xl shadow-md">
-                            <div class="flex-1">
-                                <p class="text-[10px] text-rose-300 font-bold mb-1">${item.Category}</p>
-                                <h4 class="text-lg font-medium text-stone-700">${item.Name}</h4>
-                                <p class="text-rose-500 font-bold mt-2">฿${Number(item.Price).toLocaleString()}</p>
-                            </div>
-                            <button onclick="removeFromCart(${i})" class="text-stone-200 hover:text-red-400 p-4 transition-all"><i class="fas fa-trash-alt text-xl"></i></button>
-                        </div>`;
+                    return `<div class="bg-white p-6 md:p-8 rounded-[40px] shadow-sm border border-rose-50 flex items-center gap-8"><img src="${item.Image}" class="w-20 h-28 object-cover rounded-2xl shadow-md"><div class="flex-1"><p class="text-[10px] text-rose-300 font-bold mb-1">${item.Category}</p><h4 class="text-lg font-medium text-stone-700">${item.Name}</h4><p class="text-rose-500 font-bold mt-2">฿${Number(item.Price).toLocaleString()}</p></div><button onclick="removeFromCart(${i})" class="text-stone-200 hover:text-red-400 p-4 transition-all"><i class="fas fa-trash-alt text-xl"></i></button></div>`;
                 }).join('');
                 document.getElementById('cartSummary').style.display = 'flex';
                 totalDisplay.innerText = `฿${total.toLocaleString()}`;
@@ -475,7 +435,6 @@
             window.open(`https://line.me/ti/p/${storeSettings.line}?text=${msg}`);
         }
 
-        // --- Search & Filter ---
         function toggleSearch() {
             const box = document.getElementById('searchBox');
             box.classList.toggle('open');
@@ -491,24 +450,20 @@
         function filterCat(cat) {
             activeCat = cat;
             document.getElementById('currentCatTitle').innerText = cat;
-            document.querySelectorAll('#categoryFilter button').forEach(b => {
-                b.classList.toggle('text-rose-500', b.innerText === cat);
-                b.classList.toggle('translate-x-2', b.innerText === cat);
-            });
+            document.querySelectorAll('#categoryFilter button').forEach(b => b.classList.toggle('text-rose-500', b.innerText === cat));
             renderProducts();
         }
 
-        // --- Navigation ---
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            document.getElementById(`page-${pageId}`).classList.add('active');
+            const page = document.getElementById(`page-${pageId}`);
+            if(page) page.classList.add('active');
             const nav = document.getElementById(`nav-${pageId}`);
             if (nav) nav.classList.add('active');
             window.scrollTo(0,0);
         }
 
-        // --- Admin Functions ---
         function openLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
         function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); }
         
@@ -528,6 +483,7 @@
             document.getElementById('pForm').reset();
             document.getElementById('p_id').value = "";
             document.getElementById('formTitle').innerText = "เพิ่มสินค้าใหม่ลง Excel";
+            document.getElementById('submitBtn').innerText = "บันทึกลง Excel";
             document.getElementById('productModal').style.display = 'flex';
         }
 
@@ -540,7 +496,8 @@
             document.getElementById('p_cat').value = p.Category;
             document.getElementById('p_img').value = p.Image;
             document.getElementById('p_desc').value = p.Description || "";
-            document.getElementById('formTitle').innerText = "แก้ไขข้อมูลสินค้า";
+            document.getElementById('formTitle').innerText = "แก้ไขข้อมูลสินค้าเดิม";
+            document.getElementById('submitBtn').innerText = "บันทึกการแก้ไข";
             document.getElementById('productModal').style.display = 'flex';
         }
 
@@ -558,8 +515,13 @@
                 description: document.getElementById('p_desc').value
             };
             showLoader(true);
-            await fetch(apiUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            setTimeout(() => { fetchData(); closeModals(); alert("บันทึกสำเร็จ!"); }, 1000);
+            try {
+                await fetch(apiUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                setTimeout(() => { fetchData(); closeModals(); alert("ดำเนินการสำเร็จ!"); }, 1000);
+            } catch(err) {
+                alert("เกิดข้อผิดพลาดในการบันทึก");
+                showLoader(false);
+            }
         };
 
         async function deleteItem(id) {
