@@ -14,7 +14,7 @@
 
     <style>
         :root {
-            --primary: #f472b6; --accent: #fbcfe8; --bg: #fff5f7; 
+            --primary: #f472b6; --accent: #fbcfe8; --bg: #fffcfc; 
             --text: #502d3c; --muted: #9d7c8a; --white: #ffffff;
             --success: #10b981; --danger: #f87171;
             --soft-pink: #fdf2f8;
@@ -132,6 +132,13 @@
                 <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-rose-200/40 via-transparent flex items-center px-12">
                     <div class="bg-white/80 backdrop-blur-xl p-14 rounded-[50px] max-w-lg shadow-2xl border border-white/50">
+                        <h4 class="text-rose-400 font-bold tracking-[0.3em] text-[10px] mb-6 uppercase">Exclusive New Arrivals</h4>
+                        <h2 class="text-6xl font-sriracha text-stone-800 mb-6 leading-tight">Sweet & Modern</h2>
+                        <button onclick="showPage('shop')" class="btn-sweet px-12 py-5 text-xs font-bold uppercase">ช้อปเลยตอนนี้</button>
+                    </div>
+                </div>
+            </div>
+            
             <div class="flex justify-between items-end mb-12 px-4">
                 <div>
                     <h3 class="text-4xl font-sriracha text-stone-800">สินค้าแนะนำ (Best Seller)</h3>
@@ -279,7 +286,7 @@
         let isAdmin = false;
         let activeCat = 'ทั้งหมด';
         let searchQuery = '';
-        let currentDetailId = null; // เก็บค่าว่ากำลังดูสินค้ารหัสอะไรอยู่
+        let currentDetailId = null;
         let apiUrl = localStorage.getItem('praewa_api_url') || HARDCODED_API_URL;
 
         window.onload = async () => {
@@ -300,7 +307,6 @@
                 updateContactUI();
                 renderProducts();
                 
-                // ถ้าเปิดหน้ารายละเอียดค้างไว้ ให้อัปเดตข้อมูลด้วย
                 if (currentDetailId && document.getElementById('page-detail').classList.contains('show')) {
                     viewDetail(currentDetailId);
                 }
@@ -309,18 +315,28 @@
             }
         }
 
-        // ฟังก์ชันคำนวณสต๊อกที่เหลือจริงๆ (หักลบกับที่อยู่ในตะกร้าแล้ว)
         function getAvailableStock(product) {
             const inCartCount = cart.filter(c => c.ID === product.ID).length;
             return product.Stock - inCartCount;
         }
 
         function updateContactUI() {
-            document.getElementById('linkFB').href = storeSettings.facebook;
-            document.getElementById('linkLine').href = `https://line.me/ti/p/${storeSettings.line}`;
-            document.getElementById('linkPhone').href = `tel:${storeSettings.phone}`;
-            document.getElementById('textLineID').innerText = storeSettings.line;
-            document.getElementById('textPhone').innerText = storeSettings.phone;
+            // ป้องกันการใช้ .trim() กับค่าที่อาจจะเป็น undefined หรือ null
+            let fbLink = (storeSettings.facebook || '').trim();
+            if (fbLink && !fbLink.startsWith('http')) {
+                fbLink = `https://facebook.com/${fbLink}`;
+            }
+
+            let lineLink = (storeSettings.line || '').trim();
+            if (lineLink && !lineLink.startsWith('http')) {
+                lineLink = `https://line.me/ti/p/~${lineLink}`; 
+            }
+
+            document.getElementById('linkFB').href = fbLink || '#';
+            document.getElementById('linkLine').href = lineLink || '#';
+            document.getElementById('linkPhone').href = `tel:${storeSettings.phone || ''}`;
+            document.getElementById('textLineID').innerText = storeSettings.line || '';
+            document.getElementById('textPhone').innerText = storeSettings.phone || '';
         }
 
         function renderProducts() {
@@ -332,7 +348,7 @@
             });
 
             const gridHtml = filtered.map(p => {
-                const stock = getAvailableStock(p); // ดึงสต๊อกแบบ Real-time
+                const stock = getAvailableStock(p);
                 return `
                 <div class="product-card group relative flex flex-col animate-fade">
                     <div class="img-wrap cursor-pointer shadow-lg" onclick="viewDetail('${p.ID}')">
@@ -352,9 +368,14 @@
                         <p class="text-rose-500 font-bold">฿${Number(p.Price).toLocaleString()}</p>
                         <button onclick="addToCart('${p.ID}')" class="mt-4 w-full py-3 rounded-2xl text-[10px] font-bold uppercase transition-all ${stock > 0 ? 'bg-rose-50 text-rose-400 hover:bg-rose-500 hover:text-white' : 'bg-stone-100 text-stone-300 cursor-not-allowed'}" ${stock <= 0 ? 'disabled' : ''}>
                             ${stock > 0 ? 'ใส่ตะกร้า' : 'สินค้าหมดแล้ว'}
+                        </button>
+                    </div>
+                </div>
+            `;}).join('');
+
             document.getElementById('shopGrid').innerHTML = gridHtml || '<p class="col-span-full py-32 text-center text-rose-200 italic font-sriracha text-2xl">ไม่พบสินค้าค่ะ...</p>';
             
-            // เรียงลำดับสินค้าขายดีที่สุด 5 รายการ (อิงจากคอลัมน์ Sold ใน Excel ถ้ามี)
+            // เรียงลำดับสินค้าขายดีที่สุด 5 รายการ
             const topProducts = [...products]
                 .sort((a, b) => (Number(b.Sold) || 0) - (Number(a.Sold) || 0))
                 .slice(0, 5);
@@ -373,17 +394,17 @@
                         <p class="text-rose-500 font-bold text-sm">฿${Number(p.Price).toLocaleString()}</p>
                     </div>
                 </div>
-            `}).join('');
+            `;}).join('');
             
             document.getElementById('itemCount').innerText = `มีสินค้า ${filtered.length} รายการ`;
         }
 
         function viewDetail(id) {
-            currentDetailId = id; // จำไว้ว่ากำลังดูสินค้านี้อยู่
+            currentDetailId = id; 
             const p = products.find(x => x.ID == id);
             if (!p) return;
             
-            const stock = getAvailableStock(p); // ดึงสต๊อก Real-time
+            const stock = getAvailableStock(p); 
             
             document.getElementById('detailContent').innerHTML = `
                 <div class="bg-white rounded-[60px] overflow-hidden shadow-2xl flex flex-col md:flex-row border border-rose-50">
@@ -422,7 +443,6 @@
                 cart.push(p); 
                 updateCartUI(); 
                 
-                // รีเฟรชหน้าจอทันทีเพื่ออัปเดตตัวเลขสต๊อก
                 renderProducts(); 
                 if(currentDetailId === id) viewDetail(id);
                 
@@ -458,14 +478,21 @@
             cart.splice(i, 1); 
             updateCartUI(); 
             
-            // รีเฟรชสต๊อกกลับคืนมา
             renderProducts(); 
             if(currentDetailId === removedId) viewDetail(removedId);
         }
 
         function checkout() {
-            const msg = encodeURIComponent(`สวัสดีค่ะ สั่งซื้อสินค้า:\n${cart.map(c => `- ${c.Name} (฿${c.Price})`).join('\n')}\nรวมทั้งสิ้น: ฿${cart.reduce((a,b) => a + Number(b.Price), 0).toLocaleString()}`);
-            window.open(`https://line.me/ti/p/${storeSettings.line}?text=${msg}`);
+            if (cart.length === 0) return;
+            const msg = encodeURIComponent(`สวัสดีค่ะ สนใจสั่งซื้อสินค้าจากร้าน Praewa Fashion 🛍️\n\nรายการสินค้า:\n${cart.map((c, i) => `${i+1}. ${c.Name} (฿${Number(c.Price).toLocaleString()})`).join('\n')}\n\nยอดชำระทั้งสิ้น: ฿${cart.reduce((a,b) => a + Number(b.Price), 0).toLocaleString()}\n\nรบกวนสรุปยอดและแจ้งเลขบัญชีให้ด้วยนะคะ 💖`);
+            
+            let lineLink = (storeSettings.line || '').trim();
+            if (lineLink && !lineLink.startsWith('http')) {
+                lineLink = `https://line.me/ti/p/~${lineLink}`;
+            }
+            
+            const finalUrl = `${lineLink}${lineLink.includes('?') ? '&' : '?'}text=${msg}`;
+            window.open(finalUrl, '_blank');
         }
 
         function toggleSearch() {
@@ -584,9 +611,9 @@
         }
 
         function openSettingsModal() {
-            document.getElementById('s_fb').value = storeSettings.facebook;
-            document.getElementById('s_line').value = storeSettings.line;
-            document.getElementById('s_phone').value = storeSettings.phone;
+            document.getElementById('s_fb').value = storeSettings.facebook || '';
+            document.getElementById('s_line').value = storeSettings.line || '';
+            document.getElementById('s_phone').value = storeSettings.phone || '';
             document.getElementById('settingsModal').style.display = 'flex';
         }
 
