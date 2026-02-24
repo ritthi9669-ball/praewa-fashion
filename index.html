@@ -572,14 +572,18 @@
         function doLogin() {
             if (document.getElementById('passInp').value === 'admin1234') {
                 isAdmin = true;
-                document.getElementById('adminBar').classList.add('active');
+                document.getElementById('adminBar').style.display = 'block';
                 closeModals();
                 renderProducts();
                 alert("ยินดีต้อนรับกลับค่ะ เจ้าของร้าน 🌸");
             } else alert("รหัสผ่านไม่ถูกต้อง");
         }
 
-        function logoutAdmin() { isAdmin = false; document.getElementById('adminBar').classList.remove('active'); renderProducts(); }
+        function logoutAdmin() { 
+            isAdmin = false; 
+            document.getElementById('adminBar').style.display = 'none'; 
+            renderProducts(); 
+        }
 
         function openProductModal() {
             document.getElementById('pForm').reset();
