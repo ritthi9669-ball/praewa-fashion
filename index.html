@@ -312,13 +312,13 @@
                 <div class="product-card group relative flex flex-col animate-fade">
                     <div class="img-wrap cursor-pointer shadow-lg" onclick="viewDetail('${p.ID}')">
                         <img src="${p.Image || 'https://via.placeholder.com/400x533'}" alt="${p.Name}">
-                        <div class="absolute top-4 left-4"><span class="tag-stock">STOCK: ${p.Stock}</span></div>
-                        ${p.Stock <= 0 ? '<div class="absolute inset-0 bg-stone-900/60 flex items-center justify-center backdrop-blur-sm"><span class="bg-white text-stone-800 px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest">Out of Stock</span></div>' : ''}
+                        <div class="absolute top-4 left-4"><span class="tag-stock">เหลือ ${p.Stock} ชิ้น</span></div>
+                        ${p.Stock <= 0 ? '<div class="absolute inset-0 bg-stone-900/60 flex items-center justify-center backdrop-blur-sm"><span class="bg-white text-stone-800 px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest">สินค้าหมด</span></div>' : ''}
                     </div>
                     ${isAdmin ? `
                         <div class="absolute top-8 right-8 flex flex-col gap-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="editItem('${p.ID}')" class="w-12 h-12 bg-white text-blue-500 rounded-full shadow-2xl flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteItem('${p.ID}')" class="w-12 h-12 bg-white text-red-500 rounded-full shadow-2xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all"><i class="fas fa-trash"></i></button>
+                            <button onclick="editItem('${p.ID}')" class="w-12 h-12 bg-white/90 text-blue-500 rounded-full shadow-2xl flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteItem('${p.ID}')" class="w-12 h-12 bg-white/90 text-red-500 rounded-full shadow-2xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all"><i class="fas fa-trash"></i></button>
                         </div>
                     ` : ''}
                     <div class="p-8 pt-4 text-center">
@@ -337,6 +337,8 @@
                  <div class="product-card group relative bg-white/50 border-none shadow-none hover:shadow-xl transition-all">
                     <div class="img-wrap cursor-pointer" onclick="viewDetail('${p.ID}')">
                         <img src="${p.Image || 'https://via.placeholder.com/400x533'}" class="w-full h-full object-cover">
+                        <div class="absolute top-4 left-4"><span class="tag-stock">เหลือ ${p.Stock} ชิ้น</span></div>
+                        ${p.Stock <= 0 ? '<div class="absolute inset-0 bg-stone-900/60 flex items-center justify-center backdrop-blur-sm"><span class="bg-white text-stone-800 px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest">สินค้าหมด</span></div>' : ''}
                     </div>
                     <div class="p-6 text-center">
                         <h4 class="text-sm font-medium truncate font-prompt mb-1">${p.Name}</h4>
@@ -360,11 +362,17 @@
                         <h1 class="text-6xl font-sriracha text-stone-800 mb-8 leading-tight">${p.Name}</h1>
                         <p class="text-5xl text-rose-500 font-bold tracking-tighter mb-10">฿${Number(p.Price).toLocaleString()}</p>
                         <div class="bg-rose-50/50 p-8 rounded-[40px] border border-rose-50 mb-12">
-                            <h4 class="text-[11px] font-bold uppercase text-stone-400 mb-4 tracking-widest"><i class="fas fa-info-circle mr-2"></i> Product Details</h4>
+                            <h4 class="text-[11px] font-bold uppercase text-stone-400 mb-4 tracking-widest"><i class="fas fa-info-circle mr-2"></i> รายละเอียดสินค้า</h4>
                             <p class="text-sm text-stone-500 leading-relaxed font-medium italic">"${p.Description || 'ชุดสวยดีไซน์พรีเมียม สวมใส่สบาย เสริมความมั่นใจในทุกท่วงท่าของคุณ'}"</p>
+                            <div class="mt-6 inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-rose-100 shadow-sm">
+                                <div class="w-2 h-2 rounded-full ${p.Stock > 0 ? 'bg-green-400 animate-pulse' : 'bg-red-400'}"></div>
+                                <span class="text-[11px] font-bold text-stone-600">สินค้าพร้อมส่ง: <span class="text-rose-500">${p.Stock}</span> ชิ้น</span>
+                            </div>
                         </div>
                         <div class="flex gap-5">
-                            <button onclick="addToCart('${p.ID}')" class="flex-1 btn-sweet py-6 rounded-full font-bold text-xs uppercase tracking-[0.3em] ${p.Stock <= 0 ? 'opacity-40 pointer-events-none' : ''}">Add to bag</button>
+                            <button onclick="addToCart('${p.ID}')" class="flex-1 btn-sweet py-6 rounded-full font-bold text-xs uppercase tracking-[0.3em] ${p.Stock <= 0 ? 'opacity-40 pointer-events-none' : ''}">
+                                ${p.Stock > 0 ? 'เพิ่มลงตะกร้า' : 'สินค้าหมด'}
+                            </button>
                             <button onclick="showPage('shop')" class="w-20 h-20 bg-stone-50 rounded-full flex items-center justify-center text-stone-300 hover:text-rose-500 transition-all border border-white"><i class="fas fa-times text-2xl"></i></button>
                         </div>
                     </div>
