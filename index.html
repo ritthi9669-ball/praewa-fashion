@@ -1,647 +1,599 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  ShoppingBag, Edit3, Plus, Trash2, X, Check, Menu, 
-  ShoppingCart, Lock, LogOut, Settings, Phone, 
-  Facebook, MessageCircle, Info, ChevronRight, Package,
-  Search, Heart, ArrowRight, Store, MapPin, RefreshCcw
-} from 'lucide-react';
-
-export default function App() {
-  // --- States ---
-  const [currentPage, setCurrentPage] = useState('home');
-  const [products, setProducts] = useState([]);
-  const [storeSettings, setStoreSettings] = useState({
-    facebook: 'PraewaFashionPage',
-    line: '@praewa',
-    phone: '081-XXX-XXXX'
-  });
-  const [cart, setCart] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [activeCategory, setActiveCategory] = useState('ทั้งหมด');
-  
-  // Search State
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  
-  // Settings & API
-  const [apiUrl, setApiUrl] = useState(localStorage.getItem('praewa_api_url') || '');
-  const [showConfig, setShowConfig] = useState(false);
-  const [showContactEdit, setShowContactEdit] = useState(false);
-
-  // Form States
-  const [productForm, setProductForm] = useState({ id: '', name: '', price: '', category: 'เดรส', image: '', stock: 10, description: '', size: 'S,M,L', color: 'ชมพู' });
-  const [contactForm, setContactForm] = useState({ facebook: '', line: '', phone: '' });
-
-  // --- Initialization ---
-  useEffect(() => {
-    // Inject Fonts
-    const link = document.createElement('link');
-    link.href = 'https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&family=Sriracha&display=swap';
-    link.rel = 'stylesheet';
-    document.head.appendChild(link);
-
-    if (apiUrl) fetchData();
-  }, [apiUrl]);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(apiUrl);
-      const data = await res.json();
-      if (data.products) setProducts(data.products);
-      if (data.settings) {
-        setStoreSettings(data.settings);
-        setContactForm(data.settings);
-      }
-    } catch (e) {
-      console.error("Fetch error:", e);
-    }
-    setLoading(false);
-  };
-
-  // --- Business Logic ---
-  const handleSaveProduct = async (e) => {
-    e.preventDefault();
-    if (!apiUrl) return alert("กรุณาตั้งค่า API URL ก่อน");
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praewa Fashion | ระบบร้านค้าแฟชั่นมืออาชีพ</title>
     
-    const isEdit = !!productForm.id;
-    const payload = {
-      action: isEdit ? 'edit' : 'add',
-      ...productForm,
-      id: productForm.id || "P" + Date.now()
-    };
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&family=Sriracha&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS (for layout helper) -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    setLoading(true);
-    try {
-      await fetch(apiUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-      setTimeout(() => {
-        fetchData();
-        setShowConfig(false);
-        setProductForm({ id: '', name: '', price: '', category: 'เดรส', image: '', stock: 10, description: '', size: 'S,M,L', color: 'ชมพู' });
-        alert("บันทึกข้อมูลสินค้าลง Excel สำเร็จ!");
-      }, 1000);
-    } catch (e) { alert("เกิดข้อผิดพลาด"); }
-    setLoading(false);
-  };
+    <style>
+        :root {
+            --primary: #f472b6; --accent: #fbcfe8; --bg: #fffcfc; 
+            --text: #502d3c; --muted: #9d7c8a; --white: #ffffff;
+            --success: #10b981; --danger: #f87171;
+        }
 
-  const handleSaveSettings = async () => {
-    if (!apiUrl) return;
-    setLoading(true);
-    try {
-      await fetch(apiUrl, { 
-        method: 'POST', 
-        mode: 'no-cors', 
-        body: JSON.stringify({ action: 'save_settings', ...contactForm }) 
-      });
-      setTimeout(() => {
-        setStoreSettings(contactForm);
-        setShowContactEdit(false);
-        alert("อัปเดตข้อมูลติดต่อร้านค้าเรียบร้อย!");
-        setLoading(false);
-      }, 1000);
-    } catch (e) { alert("บันทึกไม่สำเร็จ"); setLoading(false); }
-  };
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            scroll-behavior: smooth;
+        }
 
-  const deleteProduct = async (id) => {
-    if (!window.confirm("ยืนยันการลบสินค้าชิ้นนี้ออกจาก Excel?")) return;
-    setLoading(true);
-    try {
-      await fetch(apiUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete', id }) });
-      setTimeout(fetchData, 1000);
-    } catch (e) { alert("ลบไม่สำเร็จ"); setLoading(false); }
-  };
-
-  const addToCart = (product) => {
-    if (product.Stock <= 0) return alert("ขออภัย สินค้าหมดชั่วคราวค่ะ");
-    setCart([...cart, product]);
-    alert("เพิ่มลงตะกร้าแล้วค่ะ 💖");
-  };
-
-  // --- Search Logic ---
-  const handleSearchChange = (e) => {
-    const val = e.target.value;
-    setSearchQuery(val);
-    if (val.trim() !== '' && currentPage !== 'shop') {
-      setCurrentPage('shop');
-    }
-  };
-
-  const filteredProducts = products.filter(p => {
-    const matchesSearch = p.Name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          p.Category.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = activeCategory === 'ทั้งหมด' || p.Category === activeCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  // --- UI Components ---
-  const ProductCard = ({ p }) => (
-    <div className="group bg-white rounded-[32px] overflow-hidden shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-15px_rgba(244,114,182,0.2)] transition-all duration-500 border border-transparent hover:border-rose-100 relative">
-      <div 
-        className="aspect-[3/4] overflow-hidden cursor-pointer relative"
-        onClick={() => { setSelectedProduct(p); setCurrentPage('detail'); }}
-      >
-        <img src={p.Image || 'https://via.placeholder.com/400x533'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt={p.Name} />
-        <div className="absolute top-4 left-4">
-          <span className="bg-white/80 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-rose-500 shadow-sm border border-white/50">
-            สต๊อก: {p.Stock}
-          </span>
-        </div>
-        {p.Stock <= 0 && (
-          <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-[2px] flex items-center justify-center">
-            <span className="bg-white/90 text-stone-800 px-5 py-2 rounded-full font-bold text-xs uppercase tracking-widest shadow-xl">Out of Stock</span>
-          </div>
-        )}
-      </div>
-
-      {isAdmin && (
-        <div className="absolute top-4 right-4 flex flex-col gap-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <button onClick={() => { setProductForm(p); setShowConfig(true); }} className="p-2.5 bg-white/90 backdrop-blur text-blue-500 rounded-full shadow-lg hover:bg-blue-500 hover:text-white transition-all"><Edit3 size={16}/></button>
-          <button onClick={() => deleteProduct(p.ID)} className="p-2.5 bg-white/90 backdrop-blur text-red-500 rounded-full shadow-lg hover:bg-red-500 hover:text-white transition-all"><Trash2 size={16}/></button>
-        </div>
-      )}
-
-      <div className="p-6 text-center">
-        <p className="text-[10px] uppercase tracking-[0.2em] text-rose-300 font-bold mb-1">{p.Category}</p>
-        <h3 className="text-[15px] font-medium text-stone-700 line-clamp-1 mb-2 font-prompt">{p.Name}</h3>
-        <p className="text-rose-500 font-bold text-xl font-prompt">฿{Number(p.Price).toLocaleString()}</p>
-        <button 
-          onClick={() => addToCart(p)}
-          disabled={p.Stock <= 0}
-          className={`mt-4 w-full py-3 rounded-2xl text-[11px] font-bold tracking-widest uppercase transition-all duration-300 ${p.Stock > 0 ? 'bg-rose-50 text-rose-400 hover:bg-rose-500 hover:text-white hover:shadow-lg hover:shadow-rose-200' : 'bg-stone-50 text-stone-300 cursor-not-allowed'}`}
-        >
-          {p.Stock > 0 ? 'Add to Cart' : 'Sold Out'}
-        </button>
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="min-h-screen bg-[#fffcfc] text-stone-800 font-prompt selection:bg-rose-100 selection:text-rose-600">
-      
-      {/* Admin Header */}
-      {isAdmin && (
-        <div className="bg-stone-900 text-white py-3 px-6 flex justify-between items-center text-[11px] sticky top-0 z-[1001] shadow-2xl">
-          <div className="flex items-center gap-6">
-            <span className="flex items-center gap-2 text-rose-400 font-bold uppercase tracking-wider"><Lock size={12}/> Admin Mode</span>
-            <button onClick={() => { setProductForm({ id: '', name: '', price: '', category: 'เดรส', image: '', stock: 10, description: '', size: 'S,M,L', color: 'ชมพู' }); setShowConfig(true); }} className="hover:text-rose-300 transition-colors flex items-center gap-1"><Plus size={14}/> เพิ่มสินค้าใหม่</button>
-            <button onClick={() => setShowContactEdit(true)} className="hover:text-rose-300 transition-colors flex items-center gap-1"><Settings size={14}/> แก้ไขข้อมูลร้าน</button>
-          </div>
-          <div className="flex items-center gap-4">
-            <button onClick={() => setIsAdmin(false)} className="bg-rose-500 hover:bg-rose-600 px-4 py-1.5 rounded-full font-bold transition-all shadow-lg shadow-rose-900/20">ออกจากระบบ</button>
-          </div>
-        </div>
-      )}
-
-      {/* Navigation */}
-      <nav className={`bg-white/70 backdrop-blur-xl border-b border-rose-50 sticky transition-all duration-300 z-[1000] ${isAdmin ? 'top-[44px]' : 'top-0'}`}>
-        <div className="max-w-7xl mx-auto px-6 h-24 flex justify-between items-center gap-4">
-          <div className="flex items-center gap-4 flex-1">
-             <button onClick={() => setShowLogin(true)} className="p-2.5 text-stone-300 hover:text-rose-400 transition-all hover:bg-rose-50 rounded-full shrink-0">
-              <Lock size={20} />
-            </button>
-            
-            {/* Search Input */}
-            <div className={`relative flex items-center group transition-all duration-500 ${isSearchOpen ? 'w-full md:w-64' : 'w-10'}`}>
-              <button 
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="absolute left-0 p-2.5 text-stone-300 hover:text-rose-400 transition-all hover:bg-rose-50 rounded-full z-10"
-              >
-                <Search size={20} />
-              </button>
-              <input 
-                type="text"
-                placeholder="ค้นหาสินค้าที่ต้องการ..."
-                className={`w-full bg-stone-50 border border-transparent rounded-full py-2.5 pl-12 pr-4 outline-none focus:border-rose-100 focus:bg-white text-xs transition-all duration-500 ${isSearchOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
-                value={searchQuery}
-                onChange={handleSearchChange}
-              />
-              {searchQuery && (
-                <button 
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 p-1 text-stone-300 hover:text-rose-400 transition-all"
-                >
-                  <X size={14} />
-                </button>
-              )}
-            </div>
-          </div>
-          
-          <div className="text-center shrink-0">
-            <a href="#" onClick={() => setCurrentPage('home')} className="text-3xl md:text-4xl font-sriracha text-rose-500 hover:opacity-80 transition-opacity tracking-tight block">
-              Praewa Fashion
-            </a>
-            <p className="text-[10px] uppercase tracking-[0.4em] text-stone-400 mt-1 font-medium hidden md:block">Beauty in your style</p>
-          </div>
-
-          <div className="flex items-center gap-4 flex-1 justify-end">
-            <button className="hidden md:block p-2.5 text-stone-300 hover:text-rose-400 transition-all hover:bg-rose-50 rounded-full">
-              <Heart size={20} />
-            </button>
-            <button onClick={() => setCurrentPage('cart')} className="relative p-3 bg-stone-50 hover:bg-rose-50 rounded-full transition-all group">
-              <ShoppingBag size={22} className="text-stone-700 group-hover:text-rose-500 transition-colors" />
-              {cart.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] w-5 h-5 rounded-full flex items-center justify-center font-bold animate-pulse shadow-lg border-2 border-white">
-                  {cart.length}
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
-        <div className="max-w-7xl mx-auto flex justify-center gap-6 md:gap-10 py-4 text-[12px] font-bold uppercase tracking-[0.25em] text-stone-500 border-t border-rose-50/30 overflow-x-auto no-scrollbar">
-          <button onClick={() => { setCurrentPage('home'); setSearchQuery(''); }} className={`hover:text-rose-500 transition-colors whitespace-nowrap ${currentPage === 'home' && !searchQuery ? 'text-rose-500' : ''}`}>Home</button>
-          <button onClick={() => { setCurrentPage('shop'); setActiveCategory('ทั้งหมด'); }} className={`hover:text-rose-500 transition-colors whitespace-nowrap ${currentPage === 'shop' ? 'text-rose-500' : ''}`}>Shop</button>
-          <button onClick={() => setCurrentPage('contact')} className={`hover:text-rose-500 transition-colors whitespace-nowrap ${currentPage === 'contact' ? 'text-rose-500' : ''}`}>Contact</button>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
+        .font-sriracha { font-family: 'Sriracha', cursive; }
         
-        {/* --- Home Page --- */}
-        {currentPage === 'home' && (
-          <div className="space-y-24 animate-in fade-in duration-1000">
-            {/* Hero Section */}
-            <div className="relative h-[600px] rounded-[60px] overflow-hidden group shadow-[0_40px_80px_-30px_rgba(244,114,182,0.3)]">
-              <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200" className="w-full h-full object-cover transition-transform duration-[3s] scale-105 group-hover:scale-100" alt="Hero" />
-              <div className="absolute inset-0 bg-gradient-to-t from-rose-200/20 via-transparent to-transparent flex items-center px-6 md:px-16">
-                <div className="bg-white/80 backdrop-blur-xl p-8 md:p-14 rounded-[50px] max-w-lg shadow-2xl border border-white/50 animate-in slide-in-from-left-10 duration-700">
-                  <h4 className="text-rose-400 font-bold tracking-[0.3em] text-[10px] mb-6 uppercase">Exclusive Collection</h4>
-                  <h2 className="text-5xl md:text-6xl font-sriracha text-stone-900 mb-6 leading-[1.1]">Sweet & <br/> Modern</h2>
-                  <p className="text-stone-500 text-sm mb-10 leading-relaxed font-prompt">ยกระดับเสน่ห์ในตัวคุณด้วยเสื้อผ้าสไตล์หวานซ่อนเปรี้ยว <br className="hidden md:block" /> ตัดเย็บอย่างประณีตเพื่อความมั่นใจในทุกโอกาส</p>
-                  <button onClick={() => setCurrentPage('shop')} className="bg-rose-500 text-white px-10 py-4 rounded-full text-xs font-bold uppercase tracking-widest shadow-xl shadow-rose-200 hover:bg-rose-600 hover:-translate-y-1 transition-all flex items-center gap-2 group">
-                    Shop Collection <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform"/>
-                  </button>
-                </div>
-              </div>
+        /* Custom Animations */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade { animation: fadeIn 0.5s ease forwards; }
+        
+        @keyframes heartbeat { 
+            0% { transform: scale(1); } 
+            14% { transform: scale(1.1); } 
+            28% { transform: scale(1); } 
+            42% { transform: scale(1.1); } 
+            70% { transform: scale(1); } 
+        }
+        .fa-beat-custom { animation: heartbeat 1.5s infinite; }
+
+        /* Navigation & Header */
+        header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(16px); }
+        .nav-link { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: var(--muted); transition: 0.3s; }
+        .nav-link:hover, .nav-link.active { color: var(--primary); }
+
+        /* Admin UI */
+        #adminBar { background: #1c1917; display: none; }
+        #adminBar.active { display: block; }
+
+        /* Pages System */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* Product Cards */
+        .product-card { border-radius: 32px; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .product-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px -15px rgba(244, 114, 182, 0.3); border-color: var(--accent); }
+        .img-container { aspect-ratio: 3/4; border-radius: 24px; overflow: hidden; position: relative; }
+        .img-container img { transition: 1s; }
+        .product-card:hover img { transform: scale(1.05); }
+
+        /* Modals */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(28, 25, 23, 0.6); backdrop-filter: blur(4px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: white; border-radius: 40px; width: 100%; max-width: 500px; padding: 40px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+
+        /* Search Bar */
+        .search-container { width: 40px; transition: 0.5s; overflow: hidden; background: #f5f5f4; border-radius: 99px; display: flex; align-items: center; }
+        .search-container.open { width: 250px; padding-right: 15px; }
+        .search-input { background: transparent; border: none; outline: none; width: 0; padding: 0; font-size: 12px; transition: 0.5s; }
+        .search-container.open .search-input { width: 100%; padding-left: 10px; }
+
+        .btn-rose { background: var(--primary); color: white; transition: 0.3s; box-shadow: 0 10px 20px -5px rgba(244, 114, 182, 0.4); }
+        .btn-rose:hover { background: #db2777; transform: translateY(-2px); }
+
+        /* Custom Scroll */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #fee2e2; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #fecdd3; }
+    </style>
+</head>
+<body>
+
+    <!-- Loader -->
+    <div id="globalLoader" class="fixed inset-0 bg-white/90 backdrop-blur-md z-[9999] flex flex-col items-center justify-center text-rose-500" style="display: none;">
+        <i class="fas fa-heart fa-beat-custom text-5xl mb-6"></i>
+        <p class="font-bold text-[10px] uppercase tracking-[0.3em]">Syncing Database...</p>
+    </div>
+
+    <!-- Admin Bar -->
+    <div id="adminBar" class="text-white py-3 px-6 sticky top-0 z-[1001] shadow-xl">
+        <div class="max-w-7xl mx-auto flex justify-between items-center text-[11px]">
+            <div class="flex items-center gap-6">
+                <span class="text-rose-400 font-bold uppercase tracking-wider"><i class="fas fa-lock mr-2"></i> Admin Mode</span>
+                <button onclick="openProductModal()" class="hover:text-rose-300 font-bold">+ เพิ่มสินค้าใหม่</button>
+                <button onclick="openSettingsModal()" class="hover:text-rose-300 font-bold">แก้ไขข้อมูลร้าน</button>
             </div>
-
-            {/* Featured Categories */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                { name: 'Dresses', img: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500' },
-                { name: 'Blouses', img: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=500' },
-                { name: 'Skirts', img: 'https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?w=500' }
-              ].map(cat => (
-                <div key={cat.name} className="relative h-72 rounded-[40px] overflow-hidden cursor-pointer group shadow-lg" onClick={() => { setActiveCategory(cat.name === 'Dresses' ? 'เดรส' : cat.name === 'Blouses' ? 'เสื้อ' : 'กระโปรง'); setCurrentPage('shop'); }}>
-                  <img src={cat.img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                  <div className="absolute inset-0 bg-stone-900/20 group-hover:bg-rose-500/10 transition-colors flex items-center justify-center">
-                    <h3 className="text-white text-3xl font-sriracha drop-shadow-lg">{cat.name}</h3>
-                  </div>
-                </div>
-              ))}
+            <div class="flex items-center gap-4">
+                <button onclick="changeApi()" class="text-stone-400 hover:text-white">ตั้งค่า API</button>
+                <button onclick="logoutAdmin()" class="bg-rose-500 hover:bg-rose-600 px-4 py-1.5 rounded-full font-bold transition-all">ออกจากระบบ</button>
             </div>
+        </div>
+    </div>
 
-            {/* Featured Products */}
-            <section>
-              <div className="flex justify-between items-end mb-12">
-                <div>
-                  <h3 className="text-3xl font-sriracha text-stone-800">สินค้าขายดี</h3>
-                  <p className="text-rose-300 text-sm font-medium mt-1 uppercase tracking-widest italic">Weekly Best Sellers</p>
-                </div>
-                <button onClick={() => setCurrentPage('shop')} className="text-xs font-bold text-rose-400 hover:text-rose-600 transition-colors flex items-center gap-2 bg-rose-50 px-5 py-2.5 rounded-full">View All <ChevronRight size={14}/></button>
-              </div>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-                {products.length > 0 ? products.slice(0, 4).map(p => <ProductCard key={p.ID} p={p} />) : (
-                  <div className="col-span-full py-20 text-center bg-white rounded-[40px] border border-dashed border-rose-100">
-                    <Package className="mx-auto text-rose-200 mb-4" size={48} />
-                    <p className="text-stone-400 text-sm">กำลังอัปเดตข้อมูลจากสต๊อก...</p>
-                  </div>
-                )}
-              </div>
-            </section>
-          </div>
-        )}
-
-        {/* --- Shop Page --- */}
-        {currentPage === 'shop' && (
-          <div className="animate-in fade-in duration-700">
-            <div className="flex flex-col md:flex-row gap-16">
-              <aside className="w-full md:w-72 space-y-10">
-                <div className="bg-white p-10 rounded-[45px] shadow-[0_20px_50px_-20px_rgba(0,0,0,0.05)] border border-rose-50">
-                  <h3 className="font-sriracha text-2xl text-rose-500 mb-8 pb-4 border-b border-rose-50 flex items-center gap-2"><Store size={20}/> หมวดหมู่</h3>
-                  <div className="flex flex-col gap-5">
-                    {['ทั้งหมด', 'เดรส', 'เสื้อ', 'กระโปรง', 'กางเกง'].map(cat => (
-                      <button 
-                        key={cat} 
-                        onClick={() => setActiveCategory(cat)}
-                        className={`text-sm font-semibold tracking-wide text-left transition-all flex justify-between items-center group ${activeCategory === cat ? 'text-rose-500 translate-x-2' : 'text-stone-400 hover:text-stone-600'}`}
-                      >
-                        <span>{cat}</span>
-                        <div className={`w-1.5 h-1.5 rounded-full bg-rose-400 transition-all ${activeCategory === cat ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'}`}></div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="bg-rose-500 p-10 rounded-[45px] text-white shadow-xl shadow-rose-200 relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl group-hover:scale-150 transition-transform duration-1000"></div>
-                  <h4 className="text-rose-100 font-bold text-[10px] tracking-[0.2em] mb-4 uppercase">Special Offer</h4>
-                  <h3 className="text-2xl font-sriracha mb-4">สมัครสมาชิก <br/> รับส่วนลด 10%</h3>
-                  <p className="text-[11px] text-rose-100 leading-relaxed mb-6">รับข่าวสารคอลเลกชันใหม่ก่อนใคร และสิทธิพิเศษสำหรับคุณเท่านั้น</p>
-                  <button className="bg-white text-rose-500 px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-lg">Join Now</button>
-                </div>
-              </aside>
-
-              <div className="flex-1">
-                <div className="flex justify-between items-center mb-10">
-                  <h2 className="text-3xl font-sriracha text-stone-800">
-                    {searchQuery ? `ค้นหา: "${searchQuery}"` : activeCategory}
-                  </h2>
-                  <p className="text-xs text-stone-400 font-medium">แสดงทั้งหมด {filteredProducts.length} รายการ</p>
-                </div>
-                
-                {filteredProducts.length > 0 ? (
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-10">
-                    {filteredProducts.map(p => (
-                      <ProductCard key={p.ID} p={p} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="col-span-full py-32 text-center bg-white rounded-[50px] border-2 border-dashed border-rose-50">
-                    <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6 text-rose-300">
-                      <Search size={36} />
-                    </div>
-                    <p className="text-stone-800 font-medium text-lg">ไม่พบสินค้าที่คุณต้องการค่ะ</p>
-                    <p className="text-stone-400 text-sm mt-2">ลองเปลี่ยนคำค้นหา หรือเลือกหมวดหมู่อื่นดูนะคะ</p>
-                    <button 
-                      onClick={() => { setSearchQuery(''); setActiveCategory('ทั้งหมด'); }}
-                      className="mt-8 bg-rose-500 text-white px-8 py-3 rounded-full text-xs font-bold uppercase tracking-widest flex items-center gap-2 mx-auto hover:bg-rose-600 transition-all shadow-lg shadow-rose-100"
-                    >
-                      <RefreshCcw size={14}/> ล้างการค้นหา
+    <!-- Navigation -->
+    <nav class="bg-white/70 backdrop-blur-xl border-b border-rose-50 sticky top-0 z-[1000] shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 h-24 flex justify-between items-center gap-4">
+            <div class="flex items-center gap-4 flex-1">
+                <button onclick="openLoginModal()" class="p-2.5 text-stone-300 hover:text-rose-400 transition-all hover:bg-rose-50 rounded-full">
+                    <i class="fas fa-user-lock text-xl"></i>
+                </button>
+                <!-- Search -->
+                <div id="searchBox" class="search-container">
+                    <button onclick="toggleSearch()" class="p-2.5 text-stone-400 hover:text-rose-500">
+                        <i class="fas fa-search"></i>
                     </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* --- Detail Page --- */}
-        {currentPage === 'detail' && selectedProduct && (
-          <div className="animate-in slide-in-from-bottom-8 duration-700 max-w-6xl mx-auto">
-            <div className="bg-white rounded-[60px] overflow-hidden shadow-[0_40px_100px_-30px_rgba(0,0,0,0.1)] flex flex-col md:flex-row border border-rose-50">
-              <div className="md:w-1/2 aspect-[4/5] overflow-hidden">
-                <img src={selectedProduct.Image} className="w-full h-full object-cover hover:scale-105 transition-transform duration-[2s]" />
-              </div>
-              <div className="md:w-1/2 p-8 md:p-16 flex flex-col justify-center">
-                <nav className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.3em] text-stone-300 mb-8">
-                  <button className="hover:text-rose-500" onClick={() => setCurrentPage('shop')}>Collection</button>
-                  <ChevronRight size={10} />
-                  <span className="text-rose-300">{selectedProduct.Category}</span>
-                </nav>
-                
-                <h1 className="text-4xl md:text-5xl font-sriracha text-stone-800 mb-6 leading-tight">{selectedProduct.Name}</h1>
-                <div className="flex items-baseline gap-4 mb-10">
-                  <p className="text-4xl text-rose-500 font-bold font-prompt">฿{Number(selectedProduct.Price).toLocaleString()}</p>
-                  <p className="text-sm text-stone-300 line-through">฿{(Number(selectedProduct.Price) * 1.2).toLocaleString()}</p>
+                    <input type="text" id="searchInput" placeholder="ค้นหาชุดสวยๆ..." class="search-input" oninput="handleSearch(this.value)">
                 </div>
-                
-                <div className="inline-flex items-center gap-3 bg-stone-50 border border-stone-100 px-5 py-3 rounded-2xl self-start mb-10">
-                  <div className={`w-2 h-2 rounded-full ${selectedProduct.Stock > 0 ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`}></div>
-                  <p className="text-[11px] font-bold text-stone-500 uppercase tracking-widest">
-                    {selectedProduct.Stock > 0 ? `In Stock: ${selectedProduct.Stock} Units` : 'Out of Stock'}
-                  </p>
-                </div>
-
-                <div className="mb-12">
-                  <h4 className="text-xs font-bold text-stone-800 mb-4 uppercase tracking-[0.2em] flex items-center gap-2">
-                    <Info size={14} className="text-rose-400"/> Product Details
-                  </h4>
-                  <div className="text-sm text-stone-500 leading-relaxed whitespace-pre-line bg-rose-50/30 p-8 rounded-[35px] border border-rose-50">
-                    {selectedProduct.Description || 'คัดสรรผ้าคุณภาพดี สวมใส่สบาย ดีไซน์ทันสมัยที่ช่วยเสริมบุคลิกภาพให้คุณดูโดดเด่นในทุกๆ วัน'}
-                  </div>
-                </div>
-
-                <div className="flex gap-5">
-                  <button 
-                    disabled={selectedProduct.Stock <= 0}
-                    onClick={() => addToCart(selectedProduct)}
-                    className={`flex-1 py-5 rounded-full font-bold text-xs uppercase tracking-[0.2em] shadow-2xl transition-all duration-500 ${selectedProduct.Stock > 0 ? 'bg-rose-500 text-white shadow-rose-200 hover:bg-rose-600 hover:-translate-y-1 hover:shadow-rose-300' : 'bg-stone-200 text-stone-400 cursor-not-allowed'}`}
-                  >
-                    {selectedProduct.Stock > 0 ? 'Add to Bag' : 'Out of Stock'}
-                  </button>
-                  <button onClick={() => setCurrentPage('shop')} className="w-16 h-16 flex items-center justify-center bg-stone-50 border border-stone-100 rounded-full hover:bg-white hover:border-rose-200 text-stone-400 hover:text-rose-500 transition-all shadow-sm">
-                    <X size={24} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* --- Cart Page --- */}
-        {currentPage === 'cart' && (
-          <div className="max-w-4xl mx-auto animate-in fade-in duration-700">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl font-sriracha text-stone-800">Shopping Bag</h2>
-              <p className="text-rose-300 text-sm font-medium mt-2">คุณมีสินค้า {cart.length} รายการในตะกร้า</p>
-            </div>
-
-            {cart.length === 0 ? (
-              <div className="bg-white p-12 md:p-24 rounded-[60px] text-center shadow-2xl shadow-rose-100 border border-rose-50">
-                <div className="w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-8 text-rose-300">
-                  <ShoppingBag size={48} />
-                </div>
-                <h3 className="text-xl font-medium mb-4">ตะกร้าว่างเปล่าค่ะ</h3>
-                <p className="text-stone-400 text-sm mb-10 max-w-xs mx-auto leading-relaxed">เลือกดูสินค้าสวยๆ ในร้านเราก่อนนะคะ มีสินค้าใหม่ๆ เพียบเลย!</p>
-                <button onClick={() => setCurrentPage('shop')} className="bg-stone-900 text-white px-12 py-4 rounded-full text-xs font-bold uppercase tracking-widest shadow-xl shadow-stone-200 hover:bg-rose-500 transition-all">Go to Shop</button>
-              </div>
-            ) : (
-              <div className="space-y-8">
-                <div className="bg-white rounded-[45px] shadow-sm border border-rose-50 overflow-hidden">
-                  {cart.map((item, i) => (
-                    <div key={i} className="p-6 md:p-8 flex items-center gap-4 md:gap-8 border-b border-rose-50 last:border-0 hover:bg-rose-50/10 transition-colors">
-                      <img src={item.Image} className="w-20 h-28 md:w-24 md:h-32 object-cover rounded-3xl shadow-md" />
-                      <div className="flex-1">
-                        <p className="text-[10px] text-rose-300 font-bold uppercase tracking-widest mb-1">{item.Category}</p>
-                        <h4 className="text-base md:text-lg font-medium text-stone-800 font-prompt">{item.Name}</h4>
-                        <p className="text-rose-500 font-bold text-lg md:text-xl mt-2 font-prompt">฿{Number(item.Price).toLocaleString()}</p>
-                      </div>
-                      <button onClick={() => setCart(cart.filter((_, idx) => idx !== i))} className="p-3 md:p-4 text-stone-200 hover:text-red-500 hover:bg-red-50 rounded-full transition-all group">
-                        <Trash2 size={20} className="group-hover:scale-110 transition-transform" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="bg-white p-8 md:p-12 rounded-[50px] shadow-2xl border-2 border-rose-50 flex flex-col md:flex-row justify-between items-center gap-10">
-                  <div className="text-center md:text-left">
-                    <p className="text-stone-400 text-xs font-bold uppercase tracking-widest mb-2">Order Total</p>
-                    <h3 className="text-4xl md:text-5xl font-prompt font-bold text-rose-500 tracking-tighter">฿{cart.reduce((sum, item) => sum + Number(item.Price), 0).toLocaleString()}</h3>
-                  </div>
-                  <button 
-                    onClick={() => window.open(`https://line.me/ti/p/${storeSettings.line}?text=สวัสดีค่ะ สนใจสั่งซื้อสินค้า: ${cart.map(c => c.Name).join(', ')}`)} 
-                    className="w-full md:w-auto bg-stone-900 text-white px-16 py-5 rounded-full text-xs font-bold uppercase tracking-[0.2em] hover:bg-rose-600 transition-all shadow-2xl shadow-stone-200 hover:-translate-y-1 active:translate-y-0"
-                  >
-                    Confirm Order (LINE)
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* --- Contact Page --- */}
-        {currentPage === 'contact' && (
-          <div className="max-w-4xl mx-auto animate-in zoom-in-95 duration-1000">
-             <div className="text-center mb-20">
-              <h2 className="text-5xl font-sriracha text-stone-800">Get in Touch</h2>
-              <p className="text-rose-300 text-sm font-medium mt-4 tracking-widest uppercase italic">We'd love to hear from you</p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-              <a href={storeSettings.facebook} target="_blank" className="bg-white p-12 rounded-[50px] shadow-[0_30px_60px_-25px_rgba(0,0,0,0.05)] border border-rose-50 hover:shadow-2xl hover:-translate-y-3 transition-all group text-center">
-                <div className="w-20 h-20 bg-blue-50 text-blue-500 rounded-[30px] flex items-center justify-center mx-auto mb-8 group-hover:bg-blue-500 group-hover:text-white transition-all duration-500 rotate-3 group-hover:rotate-0"><Facebook size={40}/></div>
-                <h4 className="font-bold text-stone-800 mb-2 uppercase tracking-widest text-xs">Facebook</h4>
-                <p className="text-[11px] text-stone-400 italic">Follow our page</p>
-              </a>
-              <a href={`https://line.me/ti/p/${storeSettings.line}`} target="_blank" className="bg-white p-12 rounded-[50px] shadow-[0_30px_60px_-25px_rgba(0,0,0,0.05)] border border-rose-50 hover:shadow-2xl hover:-translate-y-3 transition-all group text-center">
-                <div className="w-20 h-20 bg-green-50 text-green-500 rounded-[30px] flex items-center justify-center mx-auto mb-8 group-hover:bg-green-500 group-hover:text-white transition-all duration-500 -rotate-3 group-hover:rotate-0"><MessageCircle size={40}/></div>
-                <h4 className="font-bold text-stone-800 mb-2 uppercase tracking-widest text-xs">Line Chat</h4>
-                <p className="text-[11px] text-stone-400 italic">{storeSettings.line}</p>
-              </a>
-              <a href={`tel:${storeSettings.phone}`} className="bg-white p-12 rounded-[50px] shadow-[0_30px_60px_-25px_rgba(0,0,0,0.05)] border border-rose-50 hover:shadow-2xl hover:-translate-y-3 transition-all group text-center">
-                <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-[30px] flex items-center justify-center mx-auto mb-8 group-hover:bg-rose-500 group-hover:text-white transition-all duration-500 rotate-6 group-hover:rotate-0"><Phone size={40}/></div>
-                <h4 className="font-bold text-stone-800 mb-2 uppercase tracking-widest text-xs">Call Us</h4>
-                <p className="text-[11px] text-stone-400 italic">{storeSettings.phone}</p>
-              </a>
+            <div class="text-center shrink-0">
+                <a href="#" onclick="showPage('home')" class="text-3xl md:text-4xl font-sriracha text-rose-500 hover:opacity-80 transition-opacity block">
+                    Praewa Fashion
+                </a>
+                <p class="text-[10px] uppercase tracking-[0.4em] text-stone-400 mt-1 font-medium hidden md:block">Beauty in your style</p>
             </div>
 
-            <div className="mt-20 bg-white p-8 md:p-16 rounded-[60px] shadow-sm border border-rose-50 flex flex-col md:flex-row items-center gap-12">
-               <div className="w-24 h-24 bg-rose-100 rounded-full flex items-center justify-center shrink-0">
-                  <MapPin size={40} className="text-rose-500" />
-               </div>
-               <div className="text-center md:text-left">
-                  <h3 className="text-2xl font-sriracha text-stone-800 mb-4">หน้าร้านหลัก (Main Store)</h3>
-                  <p className="text-stone-400 text-sm leading-relaxed font-prompt">ห้างสรรพสินค้าชั้นนำ โซนแฟชั่นสตรี ชั้น 2 <br/> เปิดบริการทุกวัน 10:00 - 21:00 น. แวะมาลองชุดสวยๆ กันได้นะคะ</p>
-               </div>
+            <div class="flex items-center gap-4 flex-1 justify-end">
+                <button class="hidden md:block p-2.5 text-stone-300 hover:text-rose-400 transition-all hover:bg-rose-50 rounded-full">
+                    <i class="far fa-heart text-xl"></i>
+                </button>
+                <button onclick="showPage('cart')" class="relative p-3 bg-stone-50 hover:bg-rose-50 rounded-full transition-all group">
+                    <i class="fas fa-shopping-bag text-stone-700 group-hover:text-rose-500"></i>
+                    <span id="cartCount" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white" style="display: none;">0</span>
+                </button>
             </div>
-          </div>
-        )}
-
-      </div>
-
-      {/* Footer */}
-      <footer className="bg-white py-24 border-t border-rose-50 mt-20 relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[1000px] bg-rose-50/20 rounded-full blur-3xl -z-10 -mt-[500px]"></div>
-        <div className="max-w-7xl mx-auto px-6 flex flex-col items-center">
-          <h2 className="text-5xl font-sriracha text-rose-500 mb-8 tracking-tighter">Praewa Fashion</h2>
-          <p className="text-stone-400 text-[13px] max-w-md text-center leading-loose mb-12 font-prompt italic">
-            "เพราะความสวยไม่ได้มีแค่แบบเดียว เราจึงคัดสรรเสื้อผ้าที่ช่วยดึงตัวตน <br/> และความมั่นใจของคุณออกมาให้ชัดเจนที่สุด"
-          </p>
-          <div className="flex gap-10 mb-16">
-            <a href={storeSettings.facebook} target="_blank" className="text-stone-300 hover:text-blue-500 transition-all hover:scale-125"><Facebook size={24}/></a>
-            <a href={`https://line.me/ti/p/${storeSettings.line}`} target="_blank" className="text-stone-300 hover:text-green-500 transition-all hover:scale-125"><MessageCircle size={24}/></a>
-            <a href={`tel:${storeSettings.phone}`} className="text-stone-300 hover:text-rose-500 transition-all hover:scale-125"><Phone size={24}/></a>
-          </div>
-          <div className="w-full h-px bg-gradient-to-r from-transparent via-rose-100 to-transparent mb-12"></div>
-          <div className="text-[10px] uppercase tracking-[0.4em] text-stone-300 font-bold">
-            &copy; 2026 Praewa Fashion Professional Store | All Rights Reserved
-          </div>
         </div>
-      </footer>
-
-      {/* --- Modals & Overlays --- */}
-
-      {/* Global Loader */}
-      {loading && (
-        <div className="fixed inset-0 bg-white/80 backdrop-blur-md z-[9999] flex flex-col items-center justify-center text-rose-500">
-          <div className="relative">
-             <div className="w-20 h-20 border-4 border-rose-50 border-t-rose-500 rounded-full animate-spin"></div>
-             <Heart className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-rose-500 animate-pulse" size={24} />
-          </div>
-          <p className="mt-6 font-bold uppercase tracking-[0.3em] text-[10px] animate-pulse">Syncing Database...</p>
+        <div class="max-w-7xl mx-auto flex justify-center gap-6 md:gap-10 py-4 text-[12px] font-bold uppercase tracking-[0.25em] text-stone-500 border-t border-rose-50/30">
+            <button onclick="showPage('home')" class="nav-link active" id="nav-home">Home</button>
+            <button onclick="showPage('shop')" class="nav-link" id="nav-shop">Shop</button>
+            <button onclick="showPage('contact')" class="nav-link" id="nav-contact">Contact</button>
         </div>
-      )}
+    </nav>
 
-      {/* Admin Login Modal */}
-      {showLogin && (
-        <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xl z-[2000] flex items-center justify-center p-6">
-          <div className="bg-white rounded-[50px] w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border border-white/20">
-            <div className="bg-stone-900 p-12 text-center text-white relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16"></div>
-              <button onClick={() => setShowLogin(false)} className="absolute top-6 right-6 text-stone-500 hover:text-white transition-colors"><X size={24}/></button>
-              <div className="w-20 h-20 bg-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-rose-900/40 rotate-12"><Lock size={36} className="text-white"/></div>
-              <h3 className="text-3xl font-sriracha">Owner Login</h3>
-              <p className="text-stone-500 text-[10px] mt-2 uppercase tracking-widest font-bold">Authorized Access Only</p>
-            </div>
-            <div className="p-12 space-y-6">
-              <input 
-                id="adm_pass" 
-                type="password" 
-                placeholder="Password (admin1234)" 
-                className="w-full bg-stone-50 border-2 border-stone-100 rounded-3xl p-5 focus:border-rose-300 outline-none transition-all text-center font-bold font-prompt" 
-                onKeyDown={(e) => { if(e.key === 'Enter' && e.target.value === 'admin1234') { setIsAdmin(true); setShowLogin(false); alert("ยินดีต้อนรับกลับค่ะ เจ้าของร้าน 🌸"); }}}
-              />
-              <button onClick={() => { if(document.getElementById('adm_pass').value === 'admin1234') { setIsAdmin(true); setShowLogin(false); alert("ยินดีต้อนรับกลับค่ะ เจ้าของร้าน 🌸"); } else { alert("รหัสผ่านไม่ถูกต้องนะคะ"); }}} className="w-full bg-rose-500 text-white py-5 rounded-3xl font-bold uppercase tracking-widest text-[11px] shadow-xl shadow-rose-200 hover:bg-stone-900 transition-all">Sign In</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Product Add/Edit Modal */}
-      {showConfig && (
-        <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-md z-[2000] flex items-center justify-center p-6">
-          <div className="bg-white rounded-[60px] w-full max-w-xl overflow-hidden shadow-2xl animate-in slide-in-from-bottom-12 duration-700">
-            <div className="bg-stone-900 p-10 flex justify-between items-center text-white">
-              <div>
-                <h3 className="font-sriracha text-3xl">{productForm.id ? 'Edit Product' : 'Add New Arrival'}</h3>
-                <p className="text-[9px] uppercase tracking-[0.3em] text-stone-500 mt-1">Excel Database Management</p>
-              </div>
-              <button onClick={() => setShowConfig(false)} className="p-3 hover:bg-white/10 rounded-full transition-colors"><X size={24}/></button>
-            </div>
-            <form onSubmit={handleSaveProduct} className="p-12 space-y-6 max-h-[70vh] overflow-y-auto custom-scroll">
-              <div className="space-y-6">
-                <div><label className="text-[10px] uppercase font-bold text-stone-400 mb-2 block tracking-widest">Product Name</label><input required value={productForm.name} onChange={(e) => setProductForm({...productForm, name: e.target.value})} className="w-full bg-stone-50 rounded-2xl p-4 border border-stone-100 outline-none focus:border-rose-200 transition-all font-prompt" placeholder="ชื่อเสื้อผ้า..." /></div>
-                <div className="grid grid-cols-2 gap-6">
-                  <div><label className="text-[10px] uppercase font-bold text-stone-400 mb-2 block tracking-widest">Price (฿)</label><input type="number" required value={productForm.price} onChange={(e) => setProductForm({...productForm, price: e.target.value})} className="w-full bg-stone-50 rounded-2xl p-4 border border-stone-100 outline-none font-prompt" /></div>
-                  <div><label className="text-[10px] uppercase font-bold text-stone-400 mb-2 block tracking-widest">Stock Units</label><input type="number" required value={productForm.stock} onChange={(e) => setProductForm({...productForm, stock: e.target.value})} className="w-full bg-stone-50 rounded-2xl p-4 border border-stone-100 outline-none font-prompt" /></div>
+    <!-- Main Content Area -->
+    <div class="max-w-7xl mx-auto px-6 py-12">
+        
+        <!-- --- PAGE: HOME --- -->
+        <div id="page-home" class="page active animate-fade">
+            <div class="relative h-[500px] rounded-[50px] overflow-hidden group shadow-2xl mb-24">
+                <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-r from-rose-100/50 to-transparent flex items-center px-12">
+                    <div class="bg-white/90 backdrop-blur-md p-10 rounded-[40px] max-w-md shadow-2xl border border-white/50">
+                        <h4 class="text-rose-400 font-bold tracking-widest text-[10px] mb-4 uppercase">New Arrivals</h4>
+                        <h2 class="text-5xl font-sriracha text-stone-800 mb-6 leading-tight">Beautiful <br/> Everyday</h2>
+                        <p class="text-stone-500 text-sm mb-10 leading-relaxed">ค้นพบความมั่นใจในสไตล์ของคุณ กับเสื้อผ้าแฟชั่นที่ออกแบบมาเพื่อคุณโดยเฉพาะ</p>
+                        <button onclick="showPage('shop')" class="btn-rose px-10 py-4 rounded-full text-xs font-bold uppercase tracking-widest">Start Shopping</button>
+                    </div>
                 </div>
-                <div><label className="text-[10px] uppercase font-bold text-stone-400 mb-2 block tracking-widest">Category</label>
-                  <select value={productForm.category} onChange={(e) => setProductForm({...productForm, category: e.target.value})} className="w-full bg-stone-50 rounded-2xl p-4 border border-stone-100 outline-none font-prompt">
-                    <option>เดรส</option><option>เสื้อ</option><option>กระโปรง</option><option>กางเกง</option>
-                  </select>
+            </div>
+
+            <div class="flex justify-between items-end mb-12">
+                <div>
+                    <h3 class="text-3xl font-sriracha text-stone-800">สินค้าแนะนำ</h3>
+                    <p class="text-rose-300 text-sm italic mt-1 uppercase tracking-widest">Recommended for you</p>
                 </div>
-                <div><label className="text-[10px] uppercase font-bold text-stone-400 mb-2 block tracking-widest">Image URL</label><input value={productForm.image} onChange={(e) => setProductForm({...productForm, image: e.target.value})} className="w-full bg-stone-50 rounded-2xl p-4 border border-stone-100 outline-none font-prompt" placeholder="https://images.unsplash.com/..." /></div>
-                <div><label className="text-[10px] uppercase font-bold text-stone-400 mb-2 block tracking-widest">Full Description</label><textarea value={productForm.description} onChange={(e) => setProductForm({...productForm, description: e.target.value})} className="w-full bg-stone-50 rounded-3xl p-6 border border-stone-100 outline-none h-32 resize-none font-prompt" placeholder="เนื้อผ้า ความยาว รายละเอียดอื่นๆ..." /></div>
-              </div>
-              <button type="submit" className="w-full bg-rose-500 text-white py-5 rounded-[30px] font-bold uppercase tracking-widest text-xs shadow-xl shadow-rose-100 hover:bg-stone-900 transition-all mt-6">Save to Cloud Excel</button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Contact Info Edit Modal */}
-      {showContactEdit && (
-        <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-md z-[2000] flex items-center justify-center p-6">
-          <div className="bg-white rounded-[50px] w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="bg-rose-50 p-10 flex justify-between items-center border-b border-rose-100">
-              <h3 className="font-sriracha text-2xl text-rose-500 flex items-center gap-3">Contact Settings</h3>
-              <button onClick={() => setShowContactEdit(false)} className="p-2 hover:bg-white rounded-full transition-all"><X size={20}/></button>
+                <button onclick="showPage('shop')" class="text-xs font-bold text-rose-400 hover:text-rose-600">ดูทั้งหมด <i class="fas fa-chevron-right ml-1"></i></button>
             </div>
-            <div className="p-12 space-y-6">
-              <div><label className="text-[10px] font-bold text-stone-400 mb-2 block uppercase tracking-widest">Facebook Link</label><input value={contactForm.facebook} onChange={(e) => setContactForm({...contactForm, facebook: e.target.value})} className="w-full bg-stone-50 border border-stone-100 rounded-2xl p-4 outline-none focus:border-rose-300 transition-all font-prompt" /></div>
-              <div><label className="text-[10px] font-bold text-stone-400 mb-2 block uppercase tracking-widest">Line ID</label><input value={contactForm.line} onChange={(e) => setContactForm({...contactForm, line: e.target.value})} className="w-full bg-stone-50 border border-stone-100 rounded-2xl p-4 outline-none focus:border-rose-300 transition-all font-prompt" /></div>
-              <div><label className="text-[10px] font-bold text-stone-400 mb-2 block uppercase tracking-widest">Phone Number</label><input value={contactForm.phone} onChange={(e) => setContactForm({...contactForm, phone: e.target.value})} className="w-full bg-stone-50 border border-stone-100 rounded-2xl p-4 outline-none focus:border-rose-300 transition-all font-prompt" /></div>
-              <button onClick={handleSaveSettings} className="w-full bg-stone-900 text-white py-5 rounded-3xl font-bold uppercase tracking-widest text-[10px] mt-6 hover:bg-rose-500 transition-all shadow-xl shadow-stone-200">Save Changes</button>
-            </div>
-          </div>
+            <div id="homeGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-8"></div>
         </div>
-      )}
 
-      {/* Global CSS for Custom Scrollbar */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        .custom-scroll::-webkit-scrollbar { width: 6px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #fee2e2; border-radius: 10px; }
-        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #fecdd3; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      `}} />
+        <!-- --- PAGE: SHOP --- -->
+        <div id="page-shop" class="page animate-fade">
+            <div class="flex flex-col md:flex-row gap-12">
+                <aside class="w-full md:w-64">
+                    <div class="bg-white p-8 rounded-[40px] shadow-sm border border-rose-50 sticky top-32">
+                        <h3 class="font-sriracha text-2xl text-rose-500 mb-6 pb-4 border-b border-rose-50">หมวดหมู่</h3>
+                        <div class="flex flex-col gap-5 text-sm font-semibold text-stone-400" id="categoryFilter">
+                            <button onclick="filterCat('ทั้งหมด')" class="text-left hover:text-rose-500 active-cat">ทั้งหมด</button>
+                            <button onclick="filterCat('เดรส')" class="text-left hover:text-rose-500">เดรส</button>
+                            <button onclick="filterCat('เสื้อ')" class="text-left hover:text-rose-500">เสื้อ</button>
+                            <button onclick="filterCat('กระโปรง')" class="text-left hover:text-rose-500">กระโปรง</button>
+                            <button onclick="filterCat('กางเกง')" class="text-left hover:text-rose-500">กางเกง</button>
+                        </div>
+                    </div>
+                </aside>
+                <div class="flex-1">
+                    <div class="flex justify-between items-center mb-10">
+                        <h2 id="currentCatTitle" class="text-3xl font-sriracha text-stone-800">ทั้งหมด</h2>
+                        <p id="itemCount" class="text-xs text-stone-400 font-medium"></p>
+                    </div>
+                    <div id="shopGrid" class="grid grid-cols-2 lg:grid-cols-3 gap-10"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- --- PAGE: DETAIL --- -->
+        <div id="page-detail" class="page animate-fade">
+            <div id="detailContent"></div>
+        </div>
+
+        <!-- --- PAGE: CART --- -->
+        <div id="page-cart" class="page animate-fade max-w-4xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-sriracha text-stone-800">Shopping Bag</h2>
+                <p id="cartItemsLabel" class="text-rose-300 text-sm mt-2"></p>
+            </div>
+            <div id="cartList" class="space-y-6"></div>
+            <div id="cartSummary" class="bg-white p-12 rounded-[50px] shadow-2xl border-2 border-rose-50 flex flex-col md:flex-row justify-between items-center gap-10 mt-10" style="display: none;">
+                <div>
+                    <p class="text-stone-400 text-xs font-bold uppercase tracking-widest mb-2">ยอดรวมทั้งสิ้น</p>
+                    <h3 id="totalDisplay" class="text-5xl font-bold text-rose-500 tracking-tighter">฿0</h3>
+                </div>
+                <button onclick="checkout()" class="bg-stone-900 text-white px-16 py-5 rounded-full text-xs font-bold uppercase tracking-[0.2em] hover:bg-rose-600 transition-all">Confirm Order (LINE)</button>
+            </div>
+        </div>
+
+        <!-- --- PAGE: CONTACT --- -->
+        <div id="page-contact" class="page animate-fade max-w-4xl mx-auto">
+            <div class="text-center mb-20">
+                <h2 class="text-5xl font-sriracha text-stone-800">Get in Touch</h2>
+                <p class="text-rose-300 text-sm font-medium mt-4 tracking-widest uppercase italic">สอบถามข้อมูลหรือสั่งซื้อสินค้าได้ทุกช่องทางค่ะ</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <a id="linkFB" href="#" target="_blank" class="bg-white p-10 rounded-[50px] shadow-sm border border-rose-50 text-center hover:-translate-y-2 transition-all">
+                    <div class="w-16 h-16 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6"><i class="fab fa-facebook text-3xl"></i></div>
+                    <h4 class="font-bold text-xs uppercase tracking-widest mb-2">Facebook</h4>
+                    <p class="text-[11px] text-stone-400 italic">Praewa Fashion Page</p>
+                </a>
+                <a id="linkLine" href="#" target="_blank" class="bg-white p-10 rounded-[50px] shadow-sm border border-rose-50 text-center hover:-translate-y-2 transition-all">
+                    <div class="w-16 h-16 bg-green-50 text-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6"><i class="fab fa-line text-3xl"></i></div>
+                    <h4 class="font-bold text-xs uppercase tracking-widest mb-2">Line ID</h4>
+                    <p id="textLineID" class="text-[11px] text-stone-400 italic"></p>
+                </a>
+                <a id="linkPhone" href="#" class="bg-white p-10 rounded-[50px] shadow-sm border border-rose-50 text-center hover:-translate-y-2 transition-all">
+                    <div class="w-16 h-16 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-6"><i class="fas fa-phone-alt text-3xl"></i></div>
+                    <h4 class="font-bold text-xs uppercase tracking-widest mb-2">Call Us</h4>
+                    <p id="textPhone" class="text-[11px] text-stone-400 italic"></p>
+                </a>
+            </div>
+        </div>
 
     </div>
-  );
-}
+
+    <!-- Footer -->
+    <footer class="bg-white py-24 border-t border-rose-50 mt-20 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col items-center">
+            <h2 class="text-5xl font-sriracha text-rose-500 mb-8">Praewa Fashion</h2>
+            <p class="text-stone-400 text-sm max-w-sm text-center leading-relaxed mb-12 italic">
+                "ส่งต่อความสวยและความมั่นใจผ่านเสื้อผ้าที่คุณรัก"
+            </p>
+            <div class="text-[10px] uppercase tracking-[0.4em] text-stone-300 font-bold">
+                &copy; 2026 Praewa Fashion Professional Store | All Rights Reserved
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <!-- Login -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal-content text-center">
+            <h3 class="text-3xl font-sriracha mb-8">Admin Login</h3>
+            <input type="password" id="passInp" placeholder="รหัสผ่าน (admin1234)" class="w-full bg-stone-50 p-5 rounded-3xl mb-6 text-center font-bold outline-none border border-transparent focus:border-rose-200">
+            <button onclick="doLogin()" class="btn-rose w-full py-4 rounded-3xl font-bold uppercase tracking-widest text-xs">เข้าสู่ระบบ</button>
+            <button onclick="closeModals()" class="mt-4 text-stone-300 text-xs">ปิด</button>
+        </div>
+    </div>
+
+    <!-- Product Form -->
+    <div id="productModal" class="modal-overlay">
+        <div class="modal-content max-w-lg">
+            <h3 id="formTitle" class="text-3xl font-sriracha mb-6">จัดการสินค้า</h3>
+            <form id="pForm" class="space-y-4 max-h-[60vh] overflow-y-auto px-2">
+                <input type="hidden" id="p_id">
+                <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">ชื่อสินค้า</label><input type="text" id="p_name" required class="w-full bg-stone-50 p-3 rounded-xl outline-none"></div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">ราคา</label><input type="number" id="p_price" required class="w-full bg-stone-50 p-3 rounded-xl outline-none"></div>
+                    <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">สต๊อก</label><input type="number" id="p_stock" required class="w-full bg-stone-50 p-3 rounded-xl outline-none"></div>
+                </div>
+                <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">หมวดหมู่</label>
+                    <select id="p_cat" class="w-full bg-stone-50 p-3 rounded-xl outline-none">
+                        <option>เดรส</option><option>เสื้อ</option><option>กระโปรง</option><option>กางเกง</option>
+                    </select>
+                </div>
+                <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">รูปภาพ (URL)</label><input type="text" id="p_img" class="w-full bg-stone-50 p-3 rounded-xl outline-none"></div>
+                <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">รายละเอียด</label><textarea id="p_desc" class="w-full bg-stone-50 p-3 rounded-xl outline-none h-24"></textarea></div>
+                <button type="submit" class="btn-rose w-full py-4 rounded-3xl font-bold uppercase tracking-widest text-xs">บันทึกลง Excel</button>
+            </form>
+            <button onclick="closeModals()" class="w-full mt-2 py-3 text-stone-300 text-xs">ยกเลิก</button>
+        </div>
+    </div>
+
+    <!-- Contact Settings -->
+    <div id="settingsModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="text-3xl font-sriracha mb-8">ข้อมูลร้านค้า</h3>
+            <div class="space-y-4">
+                <div><label class="text-[10px] font-bold">Facebook</label><input type="text" id="s_fb" class="w-full bg-stone-50 p-3 rounded-xl"></div>
+                <div><label class="text-[10px] font-bold">Line ID</label><input type="text" id="s_line" class="w-full bg-stone-50 p-3 rounded-xl"></div>
+                <div><label class="text-[10px] font-bold">เบอร์โทร</label><input type="text" id="s_phone" class="w-full bg-stone-50 p-3 rounded-xl"></div>
+                <button onclick="saveStoreSettings()" class="btn-rose w-full py-4 rounded-3xl font-bold uppercase tracking-widest text-xs">อัปเดตข้อมูล</button>
+            </div>
+            <button onclick="closeModals()" class="w-full mt-4 text-stone-300 text-xs">ปิด</button>
+        </div>
+    </div>
+
+    <script>
+        // --- States ---
+        let products = [];
+        let storeSettings = { facebook: '#', line: '@praewa', phone: '081-XXX-XXXX' };
+        let cart = [];
+        let isAdmin = false;
+        let activeCat = 'ทั้งหมด';
+        let searchQuery = '';
+        let apiUrl = localStorage.getItem('praewa_api_url') || '';
+
+        // --- Initialization ---
+        window.onload = async () => {
+            if (apiUrl) await fetchData();
+            else renderProducts();
+        };
+
+        async function fetchData() {
+            showLoader(true);
+            try {
+                const res = await fetch(apiUrl);
+                const data = await res.json();
+                products = data.products || [];
+                if (data.settings) storeSettings = data.settings;
+                updateContactUI();
+                renderProducts();
+            } catch (e) {
+                console.error(e);
+                alert("โหลดข้อมูลไม่สำเร็จ ตรวจสอบ API URL");
+            }
+            showLoader(false);
+        }
+
+        function updateContactUI() {
+            document.getElementById('linkFB').href = storeSettings.facebook;
+            document.getElementById('linkLine').href = `https://line.me/ti/p/${storeSettings.line}`;
+            document.getElementById('linkPhone').href = `tel:${storeSettings.phone}`;
+            document.getElementById('textLineID').innerText = storeSettings.line;
+            document.getElementById('textPhone').innerText = storeSettings.phone;
+        }
+
+        // --- Core Rendering ---
+        function renderProducts() {
+            const filtered = products.filter(p => {
+                const matchSearch = p.Name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                   p.Category.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchCat = activeCat === 'ทั้งหมด' || p.Category === activeCat;
+                return matchSearch && matchCat;
+            });
+
+            const gridHtml = filtered.map(p => `
+                <div class="product-card group bg-white p-4 border border-rose-50 relative">
+                    <div class="img-container cursor-pointer" onclick="viewDetail('${p.ID}')">
+                        <img src="${p.Image || 'https://via.placeholder.com/400x533'}" class="w-full h-full object-cover">
+                        ${p.Stock <= 0 ? '<div class="absolute inset-0 bg-stone-900/40 backdrop-blur-[2px] flex items-center justify-center"><span class="bg-white px-4 py-2 rounded-full font-bold text-xs">OUT OF STOCK</span></div>' : ''}
+                    </div>
+                    ${isAdmin ? `
+                        <div class="absolute top-6 right-6 flex flex-col gap-2 z-10">
+                            <button onclick="editItem('${p.ID}')" class="w-10 h-10 bg-white/90 text-blue-500 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteItem('${p.ID}')" class="w-10 h-10 bg-white/90 text-red-500 rounded-full shadow-lg flex items-center justify-center hover:bg-red-500 hover:text-white transition-all"><i class="fas fa-trash"></i></button>
+                        </div>
+                    ` : ''}
+                    <div class="p-6 text-center">
+                        <p class="text-[9px] uppercase tracking-widest text-rose-300 font-bold mb-1">${p.Category}</p>
+                        <h4 class="text-sm font-medium text-stone-700 truncate mb-2">${p.Name}</h4>
+                        <p class="text-rose-500 font-bold">฿${Number(p.Price).toLocaleString()}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('shopGrid').innerHTML = gridHtml || '<p class="col-span-full py-20 text-center text-stone-300 italic">ไม่พบสินค้าที่คุณต้องการค่ะ</p>';
+            document.getElementById('homeGrid').innerHTML = filtered.slice(0, 4).map(p => `
+                <div class="product-card group bg-white p-4 border border-rose-50 relative">
+                    <div class="img-container cursor-pointer" onclick="viewDetail('${p.ID}')">
+                        <img src="${p.Image || 'https://via.placeholder.com/400x533'}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-4 text-center">
+                        <h4 class="text-xs font-medium truncate">${p.Name}</h4>
+                        <p class="text-rose-500 font-bold text-sm">฿${Number(p.Price).toLocaleString()}</p>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('itemCount').innerText = `แสดงทั้งหมด ${filtered.length} รายการ`;
+        }
+
+        function viewDetail(id) {
+            const p = products.find(x => x.ID == id);
+            if (!p) return;
+            
+            document.getElementById('detailContent').innerHTML = `
+                <div class="bg-white rounded-[60px] overflow-hidden shadow-2xl flex flex-col md:flex-row border border-rose-50">
+                    <div class="md:w-1/2 aspect-[4/5] overflow-hidden">
+                        <img src="${p.Image}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="md:w-1/2 p-8 md:p-16 flex flex-col justify-center">
+                        <p class="text-[10px] font-bold text-stone-300 uppercase tracking-widest mb-4">Collection / ${p.Category}</p>
+                        <h1 class="text-5xl font-sriracha text-stone-800 mb-6">${p.Name}</h1>
+                        <p class="text-4xl text-rose-500 font-bold mb-8">฿${Number(p.Price).toLocaleString()}</p>
+                        <div class="bg-rose-50/50 p-6 rounded-[30px] border border-rose-50 mb-10">
+                            <h4 class="text-[11px] font-bold uppercase text-stone-400 mb-2">Product Info</h4>
+                            <p class="text-sm text-stone-500 leading-relaxed whitespace-pre-line">${p.Description || 'คัดสรรผ้าคุณภาพดี สวมใส่สบาย ดีไซน์ทันสมัยที่ช่วยเสริมบุคลิกภาพให้คุณดูโดดเด่น'}</p>
+                            <p class="mt-4 text-[11px] font-bold text-rose-300 uppercase tracking-widest">STOCK: ${p.Stock} UNITS</p>
+                        </div>
+                        <div class="flex gap-4">
+                            <button onclick="addToCart('${p.ID}')" class="flex-1 btn-rose py-5 rounded-full font-bold text-xs uppercase tracking-widest shadow-2xl ${p.Stock <= 0 ? 'opacity-50 pointer-events-none' : ''}">
+                                ${p.Stock > 0 ? 'Add to Bag' : 'Out of Stock'}
+                            </button>
+                            <button onclick="showPage('shop')" class="w-16 h-16 bg-stone-50 rounded-full flex items-center justify-center text-stone-300 hover:text-rose-500 transition-all shadow-sm"><i class="fas fa-times text-xl"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            showPage('detail');
+        }
+
+        // --- Cart System ---
+        function addToCart(id) {
+            const p = products.find(x => x.ID == id);
+            if (p) {
+                cart.push(p);
+                updateCartUI();
+                alert("เพิ่มลงตะกร้าแล้วค่ะ 💖");
+            }
+        }
+
+        function updateCartUI() {
+            const list = document.getElementById('cartList');
+            const totalDisplay = document.getElementById('totalDisplay');
+            const badge = document.getElementById('cartCount');
+            let total = 0;
+
+            if (cart.length === 0) {
+                list.innerHTML = `
+                    <div class="bg-white p-24 rounded-[60px] text-center shadow-xl border border-rose-50">
+                        <i class="fas fa-shopping-bag text-5xl text-rose-100 mb-6"></i>
+                        <p class="text-stone-400 text-sm">ยังไม่มีสินค้าในตะกร้าเลยค่ะ</p>
+                        <button onclick="showPage('shop')" class="mt-8 bg-stone-900 text-white px-10 py-3 rounded-full text-xs font-bold uppercase">Shop Now</button>
+                    </div>`;
+                document.getElementById('cartSummary').style.display = 'none';
+                badge.style.display = 'none';
+            } else {
+                list.innerHTML = cart.map((item, i) => {
+                    total += Number(item.Price);
+                    return `
+                        <div class="bg-white p-6 md:p-8 rounded-[40px] shadow-sm border border-rose-50 flex items-center gap-8">
+                            <img src="${item.Image}" class="w-20 h-28 object-cover rounded-2xl shadow-md">
+                            <div class="flex-1">
+                                <p class="text-[10px] text-rose-300 font-bold mb-1">${item.Category}</p>
+                                <h4 class="text-lg font-medium text-stone-700">${item.Name}</h4>
+                                <p class="text-rose-500 font-bold mt-2">฿${Number(item.Price).toLocaleString()}</p>
+                            </div>
+                            <button onclick="removeFromCart(${i})" class="text-stone-200 hover:text-red-400 p-4 transition-all"><i class="fas fa-trash-alt text-xl"></i></button>
+                        </div>`;
+                }).join('');
+                document.getElementById('cartSummary').style.display = 'flex';
+                totalDisplay.innerText = `฿${total.toLocaleString()}`;
+                badge.innerText = cart.length;
+                badge.style.display = 'flex';
+            }
+            document.getElementById('cartItemsLabel').innerText = `คุณมีสินค้า ${cart.length} รายการในตะกร้า`;
+        }
+
+        function removeFromCart(i) { cart.splice(i, 1); updateCartUI(); }
+
+        function checkout() {
+            const msg = encodeURIComponent(`สวัสดีค่ะ สั่งซื้อสินค้า:\n${cart.map(c => `- ${c.Name} (฿${c.Price})`).join('\n')}\nรวมทั้งสิ้น: ฿${cart.reduce((a,b) => a + Number(b.Price), 0).toLocaleString()}`);
+            window.open(`https://line.me/ti/p/${storeSettings.line}?text=${msg}`);
+        }
+
+        // --- Search & Filter ---
+        function toggleSearch() {
+            const box = document.getElementById('searchBox');
+            box.classList.toggle('open');
+            if (box.classList.contains('open')) document.getElementById('searchInput').focus();
+        }
+
+        function handleSearch(val) {
+            searchQuery = val;
+            if (val.trim() !== "") showPage('shop');
+            renderProducts();
+        }
+
+        function filterCat(cat) {
+            activeCat = cat;
+            document.getElementById('currentCatTitle').innerText = cat;
+            document.querySelectorAll('#categoryFilter button').forEach(b => {
+                b.classList.toggle('text-rose-500', b.innerText === cat);
+                b.classList.toggle('translate-x-2', b.innerText === cat);
+            });
+            renderProducts();
+        }
+
+        // --- Navigation ---
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(`page-${pageId}`).classList.add('active');
+            const nav = document.getElementById(`nav-${pageId}`);
+            if (nav) nav.classList.add('active');
+            window.scrollTo(0,0);
+        }
+
+        // --- Admin Functions ---
+        function openLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
+        function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); }
+        
+        function doLogin() {
+            if (document.getElementById('passInp').value === 'admin1234') {
+                isAdmin = true;
+                document.getElementById('adminBar').classList.add('active');
+                closeModals();
+                renderProducts();
+                alert("ยินดีต้อนรับกลับค่ะ เจ้าของร้าน 🌸");
+            } else alert("รหัสผ่านไม่ถูกต้อง");
+        }
+
+        function logoutAdmin() { isAdmin = false; document.getElementById('adminBar').classList.remove('active'); renderProducts(); }
+
+        function openProductModal() {
+            document.getElementById('pForm').reset();
+            document.getElementById('p_id').value = "";
+            document.getElementById('formTitle').innerText = "เพิ่มสินค้าใหม่ลง Excel";
+            document.getElementById('productModal').style.display = 'flex';
+        }
+
+        function editItem(id) {
+            const p = products.find(x => x.ID == id);
+            document.getElementById('p_id').value = p.ID;
+            document.getElementById('p_name').value = p.Name;
+            document.getElementById('p_price').value = p.Price;
+            document.getElementById('p_stock').value = p.Stock;
+            document.getElementById('p_cat').value = p.Category;
+            document.getElementById('p_img').value = p.Image;
+            document.getElementById('p_desc').value = p.Description || "";
+            document.getElementById('formTitle').innerText = "แก้ไขข้อมูลสินค้า";
+            document.getElementById('productModal').style.display = 'flex';
+        }
+
+        document.getElementById('pForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('p_id').value;
+            const payload = {
+                action: id ? 'edit' : 'add',
+                id: id || "ID" + Date.now(),
+                name: document.getElementById('p_name').value,
+                price: document.getElementById('p_price').value,
+                stock: document.getElementById('p_stock').value,
+                category: document.getElementById('p_cat').value,
+                image: document.getElementById('p_img').value,
+                description: document.getElementById('p_desc').value
+            };
+            showLoader(true);
+            await fetch(apiUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            setTimeout(() => { fetchData(); closeModals(); alert("บันทึกสำเร็จ!"); }, 1000);
+        };
+
+        async function deleteItem(id) {
+            if (!confirm("ลบสินค้านี้ออกจาก Excel?")) return;
+            showLoader(true);
+            await fetch(apiUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete', id }) });
+            setTimeout(() => { fetchData(); alert("ลบสำเร็จ!"); }, 1000);
+        }
+
+        function openSettingsModal() {
+            document.getElementById('s_fb').value = storeSettings.facebook;
+            document.getElementById('s_line').value = storeSettings.line;
+            document.getElementById('s_phone').value = storeSettings.phone;
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+
+        async function saveStoreSettings() {
+            const payload = {
+                action: 'save_settings',
+                facebook: document.getElementById('s_fb').value,
+                line: document.getElementById('s_line').value,
+                phone: document.getElementById('s_phone').value
+            };
+            showLoader(true);
+            await fetch(apiUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            setTimeout(() => { fetchData(); closeModals(); alert("อัปเดตข้อมูลร้านแล้วค่ะ"); }, 1000);
+        }
+
+        function changeApi() {
+            const url = prompt("วาง Deployment URL ของคุณ:", apiUrl);
+            if (url) { apiUrl = url; localStorage.setItem('praewa_api_url', url); fetchData(); }
+        }
+
+        function showLoader(s) { document.getElementById('globalLoader').style.display = s ? 'flex' : 'none'; }
+    </script>
+</body>
+</html>
