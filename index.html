@@ -204,6 +204,7 @@
                 <a id="linkFB" href="#" target="_blank" class="bg-white p-12 rounded-[60px] shadow-sm border border-rose-50 text-center hover:-translate-y-3 transition-all">
                     <div class="w-20 h-20 bg-blue-50 text-blue-500 rounded-[30px] flex items-center justify-center mx-auto mb-8 shadow-sm"><i class="fab fa-facebook text-4xl"></i></div>
                     <h4 class="font-bold text-xs uppercase mb-3">Facebook</h4>
+                    <p id="textFB" class="text-[11px] text-stone-400"></p>
                 </a>
                 <a id="linkLine" href="#" target="_blank" class="bg-white p-12 rounded-[60px] shadow-sm border border-rose-50 text-center hover:-translate-y-3 transition-all">
                     <div class="w-20 h-20 bg-green-50 text-green-500 rounded-[30px] flex items-center justify-center mx-auto mb-8 shadow-sm"><i class="fab fa-line text-4xl"></i></div>
@@ -220,20 +221,19 @@
 
     </main>
 
-    <!-- Modals -->
-    <div id="loginModal" class="modal-overlay">
-        <div class="modal-content text-center">
-            <h3 class="text-4xl font-sriracha mb-10 text-stone-800">Admin Login</h3>
-            <input type="password" id="passInp" placeholder="Password (admin1234)" class="w-full bg-stone-50 p-6 rounded-[30px] mb-8 text-center font-bold outline-none border focus:border-rose-300">
-            <button onclick="doLogin()" class="btn-sweet w-full py-5 font-bold uppercase text-sm">เข้าสู่ระบบ</button>
-            <button onclick="closeModals()" class="mt-6 text-stone-300 text-xs font-bold uppercase">Close</button>
-        </div>
-    </div>
-
-    <!-- Product Form -->
-    <div id="productModal" class="modal-overlay">
-        <div class="modal-content max-w-xl max-h-[90vh] overflow-hidden flex flex-col p-0 border-0">
-            <div class="bg-stone-900 p-8 flex justify-between items-center text-white">
+    <!-- Footer -->
+    <footer class="bg-white py-24 border-t border-rose-50 mt-20 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col items-center">
+            <h2 class="text-5xl font-sriracha text-rose-500 mb-8">Praewa Fashion</h2>
+            <p class="text-stone-400 text-sm max-w-sm text-center leading-relaxed mb-12 italic">
+                "ส่งต่อความสวยและความมั่นใจผ่านเสื้อผ้าที่คุณรัก"
+            </p>
+            <div class="flex gap-10 mb-20">
+                <a id="footFB" href="#" target="_blank" class="text-stone-300 hover:text-rose-500 text-2xl transition-all hover:scale-125"><i class="fab fa-facebook"></i></a>
+                <a id="footLine" href="#" target="_blank" class="text-stone-300 hover:text-rose-500 text-2xl transition-all hover:scale-125"><i class="fab fa-line"></i></a>
+                <a id="footPhone" href="#" class="text-stone-300 hover:text-rose-500 text-2xl transition-all hover:scale-125"><i class="fas fa-phone-alt"></i></a>
+            </div>
+            <div class="text-[10px] uppercase tracking-[0.4em] text-stone-300 font-bold">
                 <h3 id="formTitle" class="text-2xl font-sriracha">จัดการสินค้า</h3>
                 <button onclick="closeModals()"><i class="fas fa-times text-2xl"></i></button>
             </div>
@@ -264,9 +264,9 @@
         <div class="modal-content">
             <h3 class="text-3xl font-sriracha mb-10 text-stone-800 text-center">ข้อมูลติดต่อร้าน</h3>
             <div class="space-y-6">
-                <div><label class="text-[10px] font-bold uppercase text-stone-400 mb-2 block">Facebook Link</label><input type="text" id="s_fb" class="w-full bg-stone-50 p-4 rounded-2xl outline-none"></div>
-                <div><label class="text-[10px] font-bold uppercase text-stone-400 mb-2 block">Line ID</label><input type="text" id="s_line" class="w-full bg-stone-50 p-4 rounded-2xl outline-none"></div>
-                <div><label class="text-[10px] font-bold uppercase text-stone-400 mb-2 block">เบอร์โทรศัพท์</label><input type="text" id="s_phone" class="w-full bg-stone-50 p-4 rounded-2xl outline-none"></div>
+                <div><label class="text-[10px] font-bold uppercase text-stone-400 mb-2 block">Facebook Link หรือ ชื่อเพจ</label><input type="text" id="s_fb" class="w-full bg-stone-50 p-4 rounded-2xl outline-none" placeholder="เช่น https://fb.com/... หรือชื่อเพจ"></div>
+                <div><label class="text-[10px] font-bold uppercase text-stone-400 mb-2 block">Line ID หรือ ลิงก์</label><input type="text" id="s_line" class="w-full bg-stone-50 p-4 rounded-2xl outline-none" placeholder="เช่น @praewa หรือ https://lin.ee/..."></div>
+                <div><label class="text-[10px] font-bold uppercase text-stone-400 mb-2 block">เบอร์โทรศัพท์</label><input type="text" id="s_phone" class="w-full bg-stone-50 p-4 rounded-2xl outline-none" placeholder="เช่น 081-xxx-xxxx"></div>
                 <button onclick="saveStoreSettings()" class="btn-sweet w-full py-5 font-bold uppercase text-xs mt-6">บันทึกข้อมูล</button>
             </div>
             <button onclick="closeModals()" class="w-full mt-6 text-stone-300 text-xs font-bold uppercase">Cancel</button>
@@ -332,11 +332,20 @@
                 lineLink = `https://line.me/ti/p/~${lineLink}`; 
             }
 
+            // อัปเดตลิงก์ในหน้า Contact
             document.getElementById('linkFB').href = fbLink || '#';
             document.getElementById('linkLine').href = lineLink || '#';
             document.getElementById('linkPhone').href = `tel:${storeSettings.phone || ''}`;
-            document.getElementById('textLineID').innerText = storeSettings.line || '';
-            document.getElementById('textPhone').innerText = storeSettings.phone || '';
+            
+            // อัปเดตข้อความในหน้า Contact
+            if(document.getElementById('textFB')) document.getElementById('textFB').innerText = storeSettings.facebook || 'ยังไม่ได้ตั้งค่า';
+            if(document.getElementById('textLineID')) document.getElementById('textLineID').innerText = storeSettings.line || 'ยังไม่ได้ตั้งค่า';
+            if(document.getElementById('textPhone')) document.getElementById('textPhone').innerText = storeSettings.phone || 'ยังไม่ได้ตั้งค่า';
+
+            // อัปเดตลิงก์ใน Footer
+            if(document.getElementById('footFB')) document.getElementById('footFB').href = fbLink || '#';
+            if(document.getElementById('footLine')) document.getElementById('footLine').href = lineLink || '#';
+            if(document.getElementById('footPhone')) document.getElementById('footPhone').href = `tel:${storeSettings.phone || ''}`;
         }
 
         function renderProducts() {
