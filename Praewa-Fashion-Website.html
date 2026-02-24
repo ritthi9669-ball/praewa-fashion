@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praewa Fashion | ระบบจัดการร้านค้า Cloud</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&family=Sriracha&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #f472b6; 
+            --accent-color: #f9a8d4; 
+            --bg-light: #fff5f7; 
+            --text-main: #502d3c; 
+            --text-muted: #9d7c8a;
+            --border-color: #fbcfe8;
+            --white: #ffffff;
+            --danger-color: #f87171;
+            --glass: rgba(255, 255, 255, 0.7);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        button { cursor: pointer; border: none; font-family: inherit; transition: all 0.2s ease; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* Loading Overlay */
+        #loadingOverlay {
+            position: fixed; inset: 0; background: white; z-index: 2000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--glass);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--border-color);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-container { height: 90px; display: flex; flex-direction: column; justify-content: center; }
+        .nav-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .logo { font-family: 'Sriracha', cursive; font-size: 32px; color: var(--primary-color); text-decoration: none; }
+        
+        .header-icons { display: flex; gap: 15px; align-items: center; }
+        .icon-btn { background: none; color: var(--primary-color); font-size: 18px; position: relative; }
+        .badge { position: absolute; top: -8px; right: -8px; background: #ff4785; color: white; font-size: 10px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+        /* Hero */
+        .hero {
+            height: 300px;
+            background: linear-gradient(rgba(255,245,247,0.4), rgba(255,245,247,0.4)), url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=1200') center/cover;
+            display: flex; align-items: center; justify-content: center; margin-bottom: 40px; border-bottom: 5px solid var(--accent-color);
+        }
+        .hero-box { background: rgba(255,255,255,0.85); padding: 30px; border-radius: 20px; text-align: center; }
+
+        /* Grid */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 30px; margin-bottom: 60px; }
+        .product-card { background: white; border-radius: 15px; overflow: hidden; position: relative; border: 1px solid transparent; transition: 0.3s; }
+        .p-image { aspect-ratio: 3/4; background: #fdf2f8; position: relative; }
+        .p-image img { width: 100%; height: 100%; object-fit: cover; }
+        .p-content { padding: 15px; text-align: center; }
+        .p-price { color: var(--primary-color); font-weight: 600; }
+
+        /* Admin Controls */
+        .admin-controls { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 5px; z-index: 10; }
+        .btn-circle { width: 34px; height: 34px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .btn-edit { background: #60a5fa; }
+        .btn-del { background: var(--danger-color); }
+        .add-placeholder { border: 2px dashed var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); aspect-ratio: 3/4; background: white; border-radius: 15px; }
+
+        /* Modals */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(80, 45, 60, 0.4); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .modal { background: white; width: 100%; max-width: 450px; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .modal-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 20px; }
+        .btn-block { width: 100%; padding: 12px; background: var(--primary-color); color: white; border-radius: 10px; font-weight: 500; margin-top: 10px; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 12px; margin-bottom: 5px; color: var(--text-muted); }
+        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; outline: none; }
+
+        /* Sidebar */
+        .sidebar { position: fixed; top: 0; right: -100%; width: 100%; max-width: 380px; height: 100%; background: white; z-index: 1100; transition: 0.3s ease; display: flex; flex-direction: column; box-shadow: -10px 0 30px rgba(0,0,0,0.05); }
+        .sidebar.open { right: 0; }
+        
+        footer { background: #fff; padding: 40px 0; border-top: 4px solid var(--accent-color); text-align: center; font-size: 12px; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+    <div id="loadingOverlay">
+        <i class="fas fa-circle-notch fa-spin" style="font-size: 40px; color: var(--primary-color); margin-bottom: 15px;"></i>
+        <p>กำลังเชื่อมต่อระบบ Cloud...</p>
+    </div>
+
+    <header>
+        <div class="container nav-container">
+            <div class="nav-top">
+                <div class="header-left">
+                    <button id="adminBtn" class="icon-btn" onclick="handleAdminLogin()" title="จัดการร้าน">
+                        <i class="fa-solid fa-gear" id="adminIcon"></i>
+                    </button>
+                    <button id="logoutBtn" class="icon-btn" style="display:none; color:var(--danger-color); margin-left:10px;" onclick="logout()">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                </div>
+                <a href="#" class="logo" id="displayStoreName">Praewa Fashion</a>
+                <div class="header-icons">
+                    <button class="icon-btn" onclick="toggleCart(true)">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span id="cartBadge" class="badge" style="display: none;">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="hero">
+        <div class="hero-box">
+            <h1 id="heroTitle">Luxury Collection</h1>
+            <p>อัปเดตแฟชั่นใหม่ผ่านระบบ Cloud</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="product-grid" id="productGrid"></div>
+    </div>
+
+    <!-- Modals -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal" style="max-width: 320px;">
+            <div class="modal-header"><h3>แอดมินล็อกอิน</h3><button onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button></div>
+            <div class="modal-body">
+                <div class="form-group"><label>Username</label><input type="text" id="userInp" value="admin1234"></div>
+                <div class="form-group"><label>Password</label><input type="password" id="passInp" value="admin1234"></div>
+                <button class="btn-block" onclick="doLogin()">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="productModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header"><h3 id="pModalTitle">จัดการสินค้า</h3><button onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button></div>
+            <div class="modal-body">
+                <div class="form-group"><label>ชื่อสินค้า</label><input type="text" id="pNameInp"></div>
+                <div class="form-group"><label>ราคา (บาท)</label><input type="number" id="pPriceInp"></div>
+                <div class="form-group"><label>URL รูปภาพ</label><input type="text" id="pImgInp"></div>
+                <button class="btn-block" id="saveProductBtn" onclick="saveProduct()">บันทึกลง Cloud</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="cartSidebar" class="sidebar">
+        <div class="modal-header"><h3>ตะกร้าสินค้า</h3><button onclick="toggleCart(false)"><i class="fa-solid fa-xmark"></i></button></div>
+        <div id="cartItems" style="flex:1; overflow-y:auto; padding:20px;"></div>
+        <div style="padding:20px; border-top:2px solid var(--accent-color); background:var(--bg-light);">
+            <div style="display:flex; justify-content:space-between; font-weight:600; margin-bottom:15px;"><span>รวมทั้งหมด</span><span id="cartTotal">฿ 0</span></div>
+            <button class="btn-block">ชำระเงิน</button>
+        </div>
+    </div>
+
+    <footer>&copy; 2026 Praewa Fashion | ข้อมูลบันทึกผ่าน Firebase Firestore</footer>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'praewa-fashion-id';
+
+        // Global State
+        let products = [];
+        let isAdmin = false;
+        let editMode = false;
+        let currentEditId = null;
+        let cart = [];
+
+        // 1. Auth First (Rule 3)
+        const initAuth = async () => {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Auth failed", error);
+            }
+        };
+
+        // 2. Data Listeners (Real-time)
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                
+                // Listen to Products (Rule 1 & 2)
+                const productsRef = collection(db, 'artifacts', appId, 'public', 'data', 'products');
+                onSnapshot(productsRef, (snapshot) => {
+                    products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderProducts();
+                }, (err) => console.error("Firestore error", err));
+            }
+        });
+
+        // --- Business Logic ---
+        window.renderProducts = () => {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = products.map(p => `
+                <div class="product-card">
+                    <div class="p-image">
+                        <img src="${p.image}" alt="${p.name}">
+                        ${editMode ? `
+                            <div class="admin-controls">
+                                <button class="btn-circle btn-edit" onclick="openEditProduct('${p.id}')"><i class="fa-solid fa-pen"></i></button>
+                                <button class="btn-circle btn-del" onclick="deleteProduct('${p.id}')"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="p-content">
+                        <div class="p-title">${p.name}</div>
+                        <div class="p-price">฿ ${Number(p.price).toLocaleString()}</div>
+                        ${!editMode ? `<button class="btn-block" style="background:none; color:var(--primary-color); border:1px solid var(--border-color);" onclick="addToCart('${p.id}')">ใส่ตะกร้า</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            if (editMode) {
+                grid.innerHTML += `
+                    <button class="add-placeholder" onclick="openAddProduct()">
+                        <i class="fa-solid fa-plus" style="font-size:24px; margin-bottom:10px;"></i>
+                        <span>เพิ่มสินค้าใหม่</span>
+                    </button>
+                `;
+            }
+        };
+
+        window.saveProduct = async () => {
+            if (!auth.currentUser) return;
+            const name = document.getElementById('pNameInp').value;
+            const price = document.getElementById('pPriceInp').value;
+            const image = document.getElementById('pImgInp').value || 'https://via.placeholder.com/300x400';
+            
+            if (!name || !price) return;
+
+            const btn = document.getElementById('saveProductBtn');
+            btn.disabled = true;
+            btn.innerText = "กำลังบันทึก...";
+
+            try {
+                if (currentEditId) {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'products', currentEditId);
+                    await setDoc(docRef, { name, price, image });
+                } else {
+                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'products');
+                    await addDoc(colRef, { name, price, image });
+                }
+                window.closeModals();
+            } catch (e) {
+                console.error("Save error", e);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "บันทึกลง Cloud";
+            }
+        };
+
+        window.deleteProduct = async (id) => {
+            if (!auth.currentUser || !confirm("ลบสินค้านี้ใช่หรือไม่?")) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'products', id);
+                await deleteDoc(docRef);
+            } catch (e) { console.error(e); }
+        };
+
+        // --- UI Interactions ---
+        window.handleAdminLogin = () => {
+            if (isAdmin) {
+                editMode = !editMode;
+                updateAdminUI();
+                renderProducts();
+            } else {
+                document.getElementById('loginModal').style.display = 'flex';
+            }
+        };
+
+        window.doLogin = () => {
+            const u = document.getElementById('userInp').value;
+            const p = document.getElementById('passInp').value;
+            if (u === 'admin1234' && p === 'admin1234') {
+                isAdmin = true;
+                editMode = true;
+                window.closeModals();
+                updateAdminUI();
+                renderProducts();
+            } else { alert("รหัสผิด!"); }
+        };
+
+        window.logout = () => {
+            isAdmin = false;
+            editMode = false;
+            updateAdminUI();
+            renderProducts();
+        };
+
+        function updateAdminUI() {
+            const icon = document.getElementById('adminIcon');
+            const logoutBtn = document.getElementById('logoutBtn');
+            logoutBtn.style.display = isAdmin ? 'inline-block' : 'none';
+            icon.className = editMode ? 'fa-solid fa-check' : 'fa-solid fa-gear';
+            document.getElementById('adminBtn').style.color = editMode ? '#ff4785' : '';
+        }
+
+        window.openAddProduct = () => {
+            currentEditId = null;
+            document.getElementById('pModalTitle').innerText = 'เพิ่มสินค้า';
+            document.getElementById('pNameInp').value = '';
+            document.getElementById('pPriceInp').value = '';
+            document.getElementById('pImgInp').value = '';
+            document.getElementById('productModal').style.display = 'flex';
+        };
+
+        window.openEditProduct = (id) => {
+            const p = products.find(x => x.id === id);
+            currentEditId = id;
+            document.getElementById('pModalTitle').innerText = 'แก้ไขสินค้า';
+            document.getElementById('pNameInp').value = p.name;
+            document.getElementById('pPriceInp').value = p.price;
+            document.getElementById('pImgInp').value = p.image;
+            document.getElementById('productModal').style.display = 'flex';
+        };
+
+        window.addToCart = (id) => {
+            const p = products.find(x => x.id === id);
+            cart.push(p);
+            updateCartUI();
+            window.toggleCart(true);
+        };
+
+        window.removeFromCart = (idx) => {
+            cart.splice(idx, 1);
+            updateCartUI();
+        };
+
+        function updateCartUI() {
+            const list = document.getElementById('cartItems');
+            const totalEl = document.getElementById('cartTotal');
+            let total = 0;
+            list.innerHTML = cart.map((item, idx) => {
+                total += Number(item.price);
+                return `
+                    <div style="display:flex; gap:10px; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
+                        <img src="${item.image}" style="width:50px; height:65px; object-fit:cover; border-radius:5px;">
+                        <div style="flex:1;">
+                            <div style="font-size:12px; font-weight:500;">${item.name}</div>
+                            <div style="color:var(--primary-color);">฿ ${Number(item.price).toLocaleString()}</div>
+                        </div>
+                        <button onclick="removeFromCart(${idx})" style="background:none; color:red;"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('cartBadge').innerText = cart.length;
+            document.getElementById('cartBadge').style.display = cart.length > 0 ? 'flex' : 'none';
+            totalEl.innerText = `฿ ${total.toLocaleString()}`;
+        }
+
+        window.toggleCart = (open) => document.getElementById('cartSidebar').classList.toggle('open', open);
+        window.closeModals = () => document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+
+        // Run Init
+        initAuth();
+
+    </script>
+</body>
+</html>
