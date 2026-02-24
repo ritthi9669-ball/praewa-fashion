@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Praewa Fashion | ระบบร้านค้าแฟชั่นมืออาชีพ</title>
+    <title>Praewa Fashion | สวย มั่นใจ ทุกสไตล์ของคุณ</title>
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&family=Sriracha&display=swap" rel="stylesheet">
@@ -14,170 +14,186 @@
 
     <style>
         :root {
-            --primary: #f472b6; --accent: #fbcfe8; --bg: #fffcfc; 
+            --primary: #f472b6; --accent: #fbcfe8; --bg: #fff5f7; 
             --text: #502d3c; --muted: #9d7c8a; --white: #ffffff;
             --success: #10b981; --danger: #f87171;
+            --soft-pink: #fdf2f8;
         }
 
         body {
             font-family: 'Prompt', sans-serif;
-            background-color: var(--bg);
+            background: linear-gradient(135deg, #fff5f7 0%, #fbcfe833 100%);
             color: var(--text);
-            scroll-behavior: smooth;
+            min-height: 100vh;
         }
 
         .font-sriracha { font-family: 'Sriracha', cursive; }
         
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade { animation: fadeIn 0.5s ease forwards; }
+        /* Decorations */
+        .decor-flower { position: fixed; z-index: -1; opacity: 0.4; pointer-events: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         
         @keyframes heartbeat { 
-            0% { transform: scale(1); } 
-            14% { transform: scale(1.1); } 
-            28% { transform: scale(1); } 
-            42% { transform: scale(1.1); } 
-            70% { transform: scale(1); } 
+            0%, 100% { transform: scale(1); } 
+            50% { transform: scale(1.1); } 
         }
-        .fa-beat-custom { animation: heartbeat 1.5s infinite; }
+        .fa-beat-custom { animation: heartbeat 2s infinite; }
 
-        header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(16px); }
-        .nav-link { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: var(--muted); transition: 0.3s; }
+        /* UI Elements */
+        header { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border-bottom: 2px solid var(--accent); }
+        .nav-link { font-size: 13px; font-weight: 600; color: var(--muted); transition: 0.3s; position: relative; }
+        .nav-link::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: var(--primary); transition: 0.3s; }
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
         .nav-link:hover, .nav-link.active { color: var(--primary); }
 
-        #adminBar { background: #1c1917; display: none; }
-        #adminBar.active { display: block; }
+        .product-card { border-radius: 40px; transition: 0.4s ease; background: white; border: 1px solid rgba(244, 114, 182, 0.1); }
+        .product-card:hover { transform: translateY(-12px); shadow: 0 30px 60px -15px rgba(244, 114, 182, 0.3); }
+        
+        .img-wrap { aspect-ratio: 3/4; border-radius: 32px; overflow: hidden; position: relative; margin: 10px; }
+        .img-wrap img { transition: 1.2s; width: 100%; height: 100%; object-fit: cover; }
+        .product-card:hover img { transform: scale(1.1); }
 
-        .page { display: none; }
-        .page.active { display: block; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(80, 45, 60, 0.4); backdrop-filter: blur(8px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: white; border-radius: 50px; width: 100%; max-width: 550px; padding: 45px; box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.2); border: 2px solid white; }
 
-        .product-card { border-radius: 32px; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .product-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px -15px rgba(244, 114, 182, 0.3); border-color: var(--accent); }
-        .img-container { aspect-ratio: 3/4; border-radius: 24px; overflow: hidden; position: relative; }
-        .img-container img { transition: 1s; height: 100%; width: 100%; object-fit: cover; }
-        .product-card:hover img { transform: scale(1.05); }
+        .btn-sweet { background: var(--primary); color: white; transition: 0.4s; box-shadow: 0 10px 25px -5px rgba(244, 114, 182, 0.5); border-radius: 99px; }
+        .btn-sweet:hover { background: #db2777; transform: translateY(-3px); box-shadow: 0 15px 30px -5px rgba(244, 114, 182, 0.6); }
 
-        .modal-overlay { position: fixed; inset: 0; background: rgba(28, 25, 23, 0.6); backdrop-filter: blur(4px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: white; border-radius: 40px; width: 100%; max-width: 500px; padding: 40px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .tag-stock { background: rgba(255, 255, 255, 0.9); padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: 700; color: var(--primary); border: 1px solid var(--accent); }
 
-        .search-container { width: 40px; transition: 0.5s; overflow: hidden; background: #f5f5f4; border-radius: 99px; display: flex; align-items: center; }
-        .search-container.open { width: 250px; padding-right: 15px; }
-        .search-input { background: transparent; border: none; outline: none; width: 0; padding: 0; font-size: 12px; transition: 0.5s; }
-        .search-container.open .search-input { width: 100%; padding-left: 10px; }
-
-        .btn-rose { background: var(--primary); color: white; transition: 0.3s; box-shadow: 0 10px 20px -5px rgba(244, 114, 182, 0.4); }
-        .btn-rose:hover { background: #db2777; transform: translateY(-2px); }
+        /* Custom Scroll */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <!-- Loader -->
-    <div id="globalLoader" class="fixed inset-0 bg-white/90 backdrop-blur-md z-[9999] flex flex-col items-center justify-center text-rose-50" style="display: none;">
-        <i class="fas fa-heart fa-beat-custom text-5xl text-rose-500 mb-6"></i>
-        <p class="font-bold text-stone-400 text-[10px] uppercase tracking-[0.3em]">Syncing with Excel...</p>
+    <!-- Floating Decorations -->
+    <div class="decor-flower" style="top: 5%; left: 2%; font-size: 60px;">🌸</div>
+    <div class="decor-flower" style="top: 40%; right: 2%; font-size: 40px;">🌸</div>
+    <div class="decor-flower" style="bottom: 10%; left: 5%; font-size: 50px;">🌺</div>
+    <div class="decor-flower" style="top: 20%; left: 20%; font-size: 20px; opacity: 0.2;">💖</div>
+
+    <!-- Global Loader -->
+    <div id="globalLoader" class="fixed inset-0 bg-white/90 backdrop-blur-md z-[9999] flex flex-col items-center justify-center text-rose-500" style="display: none;">
+        <i class="fas fa-heart fa-beat-custom text-6xl mb-6"></i>
+        <p class="font-sriracha text-2xl tracking-wide">กำลังเตรียมความสวยให้คุณค่ะ...</p>
     </div>
 
-    <!-- Admin Bar -->
-    <div id="adminBar" class="text-white py-3 px-6 sticky top-0 z-[1001] shadow-xl">
+    <!-- Admin Tools -->
+    <div id="adminBar" class="text-white bg-stone-900 py-3 px-6 sticky top-0 z-[1001] shadow-xl" style="display: none;">
         <div class="max-w-7xl mx-auto flex justify-between items-center text-[11px]">
             <div class="flex items-center gap-6">
-                <span class="text-rose-400 font-bold uppercase tracking-wider"><i class="fas fa-lock mr-2"></i> Admin Mode</span>
-                <button onclick="openProductModal()" class="hover:text-rose-300 font-bold">+ เพิ่มสินค้าใหม่</button>
-                <button onclick="openSettingsModal()" class="hover:text-rose-300 font-bold">แก้ไขข้อมูลร้าน</button>
+                <span class="text-rose-400 font-bold uppercase tracking-wider"><i class="fas fa-user-shield mr-2"></i> เจ้าของร้าน (Admin Mode)</span>
+                <button onclick="openProductModal()" class="hover:text-rose-300 font-bold">+ เพิ่มสินค้าลง Excel</button>
+                <button onclick="openSettingsModal()" class="hover:text-rose-300 font-bold">แก้ไข Facebook / Line / โทร</button>
             </div>
-            <div class="flex items-center gap-4">
-                <button onclick="changeApi()" class="text-stone-400 hover:text-white">เปลี่ยน API (ชั่วคราว)</button>
-                <button onclick="logoutAdmin()" class="bg-rose-500 hover:bg-rose-600 px-4 py-1.5 rounded-full font-bold transition-all">ออกจากระบบ</button>
-            </div>
+            <button onclick="logoutAdmin()" class="bg-rose-500 hover:bg-rose-600 px-5 py-2 rounded-full font-bold transition-all shadow-lg shadow-rose-900/50">Logout</button>
         </div>
     </div>
 
-    <!-- Navigation -->
-    <nav class="bg-white/70 backdrop-blur-xl border-b border-rose-50 sticky top-0 z-[1000] shadow-sm">
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-[1000] shadow-sm">
         <div class="max-w-7xl mx-auto px-6 h-24 flex justify-between items-center gap-4">
             <div class="flex items-center gap-4 flex-1">
-                <button onclick="openLoginModal()" class="p-2.5 text-stone-300 hover:text-rose-400 transition-all hover:bg-rose-50 rounded-full">
-                    <i class="fas fa-user-lock text-xl"></i>
+                <button onclick="openLoginModal()" class="p-3 text-rose-200 hover:text-rose-400 transition-all hover:bg-white rounded-full shadow-sm">
+                    <i class="fas fa-cog text-xl"></i>
                 </button>
-                <div id="searchBox" class="search-container">
-                    <button onclick="toggleSearch()" class="p-2.5 text-stone-400 hover:text-rose-500">
-                        <i class="fas fa-search"></i>
-                    </button>
-                    <input type="text" id="searchInput" placeholder="ค้นหาชุดสวยๆ..." class="search-input" oninput="handleSearch(this.value)">
+                <!-- Search Box -->
+                <div class="hidden md:flex items-center bg-white/80 border border-rose-100 rounded-full px-4 py-2 w-64 shadow-inner">
+                    <i class="fas fa-search text-rose-300 mr-2"></i>
+                    <input type="text" id="searchInput" placeholder="ค้นหาชุดที่ใช่สำหรับคุณ..." class="bg-transparent border-none outline-none text-xs w-full" oninput="handleSearch(this.value)">
                 </div>
             </div>
             
             <div class="text-center shrink-0">
-                <a href="#" onclick="showPage('home')" class="text-3xl md:text-4xl font-sriracha text-rose-500 hover:opacity-80 transition-opacity block">
+                <a href="#" onclick="showPage('home')" class="text-4xl md:text-5xl font-sriracha text-rose-500 hover:opacity-80 transition-opacity block leading-none">
                     Praewa Fashion
                 </a>
-                <p class="text-[10px] uppercase tracking-[0.4em] text-stone-400 mt-1 font-medium hidden md:block">Beauty in your style</p>
+                <p class="text-[10px] uppercase tracking-[0.5em] text-rose-300 mt-2 font-bold hidden md:block">สวย มั่นใจ ทุกสไตล์ของคุณ</p>
             </div>
 
             <div class="flex items-center gap-4 flex-1 justify-end">
-                <button class="hidden md:block p-2.5 text-stone-300 hover:text-rose-400 transition-all hover:bg-rose-50 rounded-full">
+                <button class="hidden md:block p-3 text-rose-200 hover:text-rose-400 transition-all hover:bg-white rounded-full">
                     <i class="far fa-heart text-xl"></i>
                 </button>
-                <button onclick="showPage('cart')" class="relative p-3 bg-stone-50 hover:bg-rose-50 rounded-full transition-all group">
-                    <i class="fas fa-shopping-bag text-stone-700 group-hover:text-rose-500"></i>
-                    <span id="cartCount" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-lg border-2 border-white" style="display: none;">0</span>
+                <button onclick="showPage('cart')" class="relative p-4 bg-rose-500 text-white rounded-full shadow-lg shadow-rose-200 hover:scale-110 transition-all group">
+                    <i class="fas fa-shopping-bag text-xl"></i>
+                    <span id="cartCount" class="absolute -top-1 -right-1 bg-stone-800 text-white text-[9px] w-6 h-6 rounded-full flex items-center justify-center font-bold border-2 border-white" style="display: none;">0</span>
                 </button>
             </div>
         </div>
-        <div class="max-w-7xl mx-auto flex justify-center gap-6 md:gap-10 py-4 text-[12px] font-bold uppercase tracking-[0.25em] text-stone-500 border-t border-rose-50/30">
-            <button onclick="showPage('home')" class="nav-link active" id="nav-home">Home</button>
-            <button onclick="showPage('shop')" class="nav-link" id="nav-shop">Shop</button>
-            <button onclick="showPage('contact')" class="nav-link" id="nav-contact">Contact</button>
+        <!-- Site Map Menu -->
+        <div class="max-w-7xl mx-auto flex justify-center gap-4 md:gap-10 py-5 text-[12px] font-bold uppercase tracking-widest text-stone-500 border-t border-rose-50/50">
+            <button onclick="showPage('home')" class="nav-link active" id="nav-home">หน้าแรก</button>
+            <button onclick="showPage('shop')" class="nav-link" id="nav-shop">สินค้า</button>
+            <button onclick="showPage('shop')" class="nav-link">สินค้าใหม่</button>
+            <button onclick="showPage('shop')" class="nav-link text-rose-400">🔥 โปรโมชั่น</button>
+            <button onclick="showPage('contact')" class="nav-link" id="nav-contact">ติดต่อเรา</button>
         </div>
-    </nav>
+    </header>
 
     <!-- Main Content Area -->
-    <div class="max-w-7xl mx-auto px-6 py-12">
+    <main class="max-w-7xl mx-auto px-6 py-12 min-h-screen">
         
         <!-- PAGE: HOME -->
         <div id="page-home" class="page active animate-fade">
-            <div class="relative h-[500px] rounded-[50px] overflow-hidden group shadow-2xl mb-24">
-                <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-gradient-to-r from-rose-100/50 to-transparent flex items-center px-12">
-                    <div class="bg-white/90 backdrop-blur-md p-10 rounded-[40px] max-w-md shadow-2xl border border-white/50">
-                        <h4 class="text-rose-400 font-bold tracking-widest text-[10px] mb-4 uppercase">New Arrivals</h4>
-                        <h2 class="text-5xl font-sriracha text-stone-800 mb-6 leading-tight">Beautiful <br/> Everyday</h2>
-                        <p class="text-stone-500 text-sm mb-10 leading-relaxed">ค้นพบความมั่นใจในสไตล์ของคุณ กับเสื้อผ้าแฟชั่นที่ออกแบบมาเพื่อคุณโดยเฉพาะ</p>
-                        <button onclick="showPage('shop')" class="btn-rose px-10 py-4 rounded-full text-xs font-bold uppercase tracking-widest">Start Shopping</button>
+            <!-- Hero Banner -->
+            <div class="relative h-[550px] rounded-[60px] overflow-hidden shadow-[0_40px_100px_-20px_rgba(244,114,182,0.4)] mb-24 group">
+                <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[3s]">
+                <div class="absolute inset-0 bg-gradient-to-t from-rose-200/40 via-transparent to-transparent flex items-center px-12">
+                    <div class="bg-white/80 backdrop-blur-xl p-14 rounded-[50px] max-w-lg shadow-2xl border border-white/50 animate-fade">
+                        <h4 class="text-rose-400 font-bold tracking-[0.3em] text-[10px] mb-6 uppercase">Exclusive New Arrivals</h4>
+                        <h2 class="text-6xl font-sriracha text-stone-800 mb-6 leading-tight">Sweet & <br/> Modern</h2>
+                        <p class="text-stone-500 text-sm mb-10 leading-relaxed">ค้นพบตัวตนที่สวยที่สุดของคุณ ผ่านคอลเลกชันที่คัดสรรอย่างประณีต เพื่อผู้หญิงที่รักในความอ่อนหวานแต่มีสไตล์</p>
+                        <button onclick="showPage('shop')" class="btn-sweet px-12 py-5 text-xs font-bold uppercase tracking-[0.2em]">ช้อปเลยตอนนี้</button>
                     </div>
                 </div>
             </div>
 
-            <div class="flex justify-between items-end mb-12">
+            <div class="flex justify-between items-end mb-12 px-4">
                 <div>
-                    <h3 class="text-3xl font-sriracha text-stone-800">สินค้าแนะนำ</h3>
-                    <p class="text-rose-300 text-sm italic mt-1 uppercase tracking-widest">Recommended for you</p>
+                    <h3 class="text-4xl font-sriracha text-stone-800">สินค้าแนะนำ (Best Seller)</h3>
+                    <p class="text-rose-300 text-sm italic mt-2 uppercase tracking-widest font-bold">Recommended just for you</p>
                 </div>
-                <button onclick="showPage('shop')" class="text-xs font-bold text-rose-400 hover:text-rose-600">ดูทั้งหมด <i class="fas fa-chevron-right ml-1"></i></button>
+                <button onclick="showPage('shop')" class="bg-white text-rose-400 px-6 py-3 rounded-full text-xs font-bold shadow-sm hover:shadow-lg transition-all">ดูสินค้าทั้งหมด <i class="fas fa-chevron-right ml-2"></i></button>
             </div>
-            <div id="homeGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-8"></div>
+            <div id="homeGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-10"></div>
         </div>
 
         <!-- PAGE: SHOP -->
         <div id="page-shop" class="page animate-fade">
-            <div class="flex flex-col md:flex-row gap-12">
-                <aside class="w-full md:w-64">
-                    <div class="bg-white p-8 rounded-[40px] shadow-sm border border-rose-50 sticky top-32">
-                        <h3 class="font-sriracha text-2xl text-rose-500 mb-6 pb-4 border-b border-rose-50">หมวดหมู่</h3>
-                        <div class="flex flex-col gap-5 text-sm font-semibold text-stone-400" id="categoryFilter">
-                            <button onclick="filterCat('ทั้งหมด')" class="text-left hover:text-rose-500 active-cat">ทั้งหมด</button>
-                            <button onclick="filterCat('เดรส')" class="text-left hover:text-rose-500">เดรส</button>
-                            <button onclick="filterCat('เสื้อ')" class="text-left hover:text-rose-500">เสื้อ</button>
-                            <button onclick="filterCat('กระโปรง')" class="text-left hover:text-rose-500">กระโปรง</button>
-                            <button onclick="filterCat('กางเกง')" class="text-left hover:text-rose-500">กางเกง</button>
+            <div class="flex flex-col lg:flex-row gap-16">
+                <!-- Sidebar Site Map -->
+                <aside class="w-full lg:w-72">
+                    <div class="bg-white/80 backdrop-blur-md p-10 rounded-[50px] shadow-sm border border-rose-50 sticky top-32">
+                        <h3 class="font-sriracha text-3xl text-rose-500 mb-8 pb-4 border-b-2 border-rose-50">หมวดหมู่สินค้า</h3>
+                        <div class="flex flex-col gap-6 text-sm font-bold tracking-wide text-stone-400" id="categoryFilter">
+                            <button onclick="filterCat('ทั้งหมด')" class="text-left hover:text-rose-500 active-cat flex justify-between items-center group">ทั้งหมด <i class="fas fa-circle text-[6px] opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                            <button onclick="filterCat('เดรส')" class="text-left hover:text-rose-500 flex justify-between items-center group">ชุดเดรส <i class="fas fa-circle text-[6px] opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                            <button onclick="filterCat('เสื้อ')" class="text-left hover:text-rose-500 flex justify-between items-center group">เสื้อแฟชั่น <i class="fas fa-circle text-[6px] opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                            <button onclick="filterCat('กระโปรง')" class="text-left hover:text-rose-500 flex justify-between items-center group">กระโปรง <i class="fas fa-circle text-[6px] opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                            <button onclick="filterCat('กางเกง')" class="text-left hover:text-rose-500 flex justify-between items-center group">กางเกง <i class="fas fa-circle text-[6px] opacity-0 group-hover:opacity-100 transition-opacity"></i></button>
+                        </div>
+
+                        <div class="mt-16 bg-rose-500 p-8 rounded-[40px] text-white shadow-xl relative overflow-hidden group">
+                            <div class="absolute -top-10 -right-10 w-24 h-24 bg-white/10 rounded-full blur-xl group-hover:scale-150 transition-transform"></div>
+                            <h4 class="text-[10px] uppercase font-bold tracking-widest mb-2">Member Special</h4>
+                            <h3 class="text-xl font-sriracha mb-4">สมัครสมาชิก <br/> ลดทันที 10%</h3>
+                            <button class="bg-white text-rose-500 px-6 py-2 rounded-full text-[10px] font-bold shadow-lg">เข้าร่วมเลย</button>
                         </div>
                     </div>
                 </aside>
+                
                 <div class="flex-1">
-                    <div class="flex justify-between items-center mb-10">
-                        <h2 id="currentCatTitle" class="text-3xl font-sriracha text-stone-800">ทั้งหมด</h2>
-                        <p id="itemCount" class="text-xs text-stone-400 font-medium"></p>
+                    <div class="flex justify-between items-center mb-12">
+                        <h2 id="currentCatTitle" class="text-4xl font-sriracha text-stone-800 tracking-tight">ทั้งหมด</h2>
+                        <p id="itemCount" class="text-[11px] text-rose-300 font-bold uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm"></p>
                     </div>
-                    <div id="shopGrid" class="grid grid-cols-2 lg:grid-cols-3 gap-10"></div>
+                    <div id="shopGrid" class="grid grid-cols-2 lg:grid-cols-3 gap-12"></div>
                 </div>
             </div>
         </div>
@@ -188,112 +204,140 @@
         </div>
 
         <!-- PAGE: CART -->
-        <div id="page-cart" class="page animate-fade max-w-4xl mx-auto">
+        <div id="page-cart" class="page animate-fade max-w-5xl mx-auto">
             <div class="text-center mb-16">
-                <h2 class="text-4xl font-sriracha text-stone-800">Shopping Bag</h2>
-                <p id="cartItemsLabel" class="text-rose-300 text-sm mt-2"></p>
+                <h2 class="text-5xl font-sriracha text-stone-800">ตะกร้าสินค้าของคุณ</h2>
+                <p id="cartItemsLabel" class="text-rose-300 text-sm mt-4 font-bold uppercase tracking-widest"></p>
             </div>
-            <div id="cartList" class="space-y-6"></div>
-            <div id="cartSummary" class="bg-white p-12 rounded-[50px] shadow-2xl border-2 border-rose-50 flex flex-col md:flex-row justify-between items-center gap-10 mt-10" style="display: none;">
-                <div>
-                    <p class="text-stone-400 text-xs font-bold uppercase tracking-widest mb-2">ยอดรวมทั้งสิ้น</p>
-                    <h3 id="totalDisplay" class="text-5xl font-bold text-rose-500 tracking-tighter">฿0</h3>
+            <div id="cartList" class="space-y-8"></div>
+            
+            <div id="cartSummary" class="bg-white p-12 rounded-[60px] shadow-2xl border-2 border-rose-50 flex flex-col md:flex-row justify-between items-center gap-10 mt-16 animate-fade" style="display: none;">
+                <div class="text-center md:text-left">
+                    <p class="text-stone-400 text-xs font-bold uppercase tracking-widest mb-2">ยอดชำระทั้งสิ้น</p>
+                    <h3 id="totalDisplay" class="text-6xl font-bold text-rose-500 tracking-tighter">฿0</h3>
                 </div>
-                <button onclick="checkout()" class="bg-stone-900 text-white px-16 py-5 rounded-full text-xs font-bold uppercase tracking-[0.2em] hover:bg-rose-600 transition-all">Confirm Order (LINE)</button>
+                <button onclick="checkout()" class="bg-stone-900 text-white px-16 py-6 rounded-full text-xs font-bold uppercase tracking-[0.3em] hover:bg-rose-600 transition-all shadow-2xl hover:-translate-y-1">ยืนยันการสั่งซื้อผ่าน Line</button>
             </div>
         </div>
 
         <!-- PAGE: CONTACT -->
         <div id="page-contact" class="page animate-fade max-w-4xl mx-auto">
-            <div class="text-center mb-20">
-                <h2 class="text-5xl font-sriracha text-stone-800">Get in Touch</h2>
-                <p class="text-rose-300 text-sm font-medium mt-4 tracking-widest uppercase italic">สอบถามข้อมูลหรือสั่งซื้อสินค้าได้ทุกช่องทางค่ะ</p>
+            <div class="text-center mb-24">
+                <h2 class="text-6xl font-sriracha text-stone-800">Contact Us</h2>
+                <p class="text-rose-400 text-sm font-bold mt-6 tracking-[0.3em] uppercase italic">เรายินดีดูแลลูกค้าคนพิเศษเสมอนะคะ</p>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-                <a id="linkFB" href="#" target="_blank" class="bg-white p-10 rounded-[50px] shadow-sm border border-rose-50 text-center hover:-translate-y-2 transition-all">
-                    <div class="w-16 h-16 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6"><i class="fab fa-facebook text-3xl"></i></div>
-                    <h4 class="font-bold text-xs uppercase tracking-widest mb-2">Facebook</h4>
-                    <p class="text-[11px] text-stone-400 italic">Praewa Fashion Page</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <a id="linkFB" href="#" target="_blank" class="bg-white p-12 rounded-[60px] shadow-sm border border-rose-50 text-center hover:-translate-y-3 transition-all group">
+                    <div class="w-20 h-20 bg-blue-50 text-blue-500 rounded-[30px] flex items-center justify-center mx-auto mb-8 transition-colors group-hover:bg-blue-500 group-hover:text-white shadow-sm rotate-3 group-hover:rotate-0"><i class="fab fa-facebook text-4xl"></i></div>
+                    <h4 class="font-bold text-xs uppercase tracking-widest mb-3">Facebook</h4>
+                    <p class="text-[11px] text-stone-400 italic font-medium">Praewa Fashion Page</p>
                 </a>
-                <a id="linkLine" href="#" target="_blank" class="bg-white p-10 rounded-[50px] shadow-sm border border-rose-50 text-center hover:-translate-y-2 transition-all">
-                    <div class="w-16 h-16 bg-green-50 text-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6"><i class="fab fa-line text-3xl"></i></div>
-                    <h4 class="font-bold text-xs uppercase tracking-widest mb-2">Line ID</h4>
-                    <p id="textLineID" class="text-[11px] text-stone-400 italic"></p>
+                <a id="linkLine" href="#" target="_blank" class="bg-white p-12 rounded-[60px] shadow-sm border border-rose-50 text-center hover:-translate-y-3 transition-all group">
+                    <div class="w-20 h-20 bg-green-50 text-green-500 rounded-[30px] flex items-center justify-center mx-auto mb-8 transition-colors group-hover:bg-green-500 group-hover:text-white shadow-sm -rotate-3 group-hover:rotate-0"><i class="fab fa-line text-4xl"></i></div>
+                    <h4 class="font-bold text-xs uppercase tracking-widest mb-3">Line ID</h4>
+                    <p id="textLineID" class="text-[11px] text-stone-400 italic font-medium"></p>
                 </a>
-                <a id="linkPhone" href="#" class="bg-white p-10 rounded-[50px] shadow-sm border border-rose-50 text-center hover:-translate-y-2 transition-all">
-                    <div class="w-16 h-16 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center mx-auto mb-6"><i class="fas fa-phone-alt text-3xl"></i></div>
-                    <h4 class="font-bold text-xs uppercase tracking-widest mb-2">Call Us</h4>
-                    <p id="textPhone" class="text-[11px] text-stone-400 italic"></p>
+                <a id="linkPhone" href="#" class="bg-white p-12 rounded-[60px] shadow-sm border border-rose-50 text-center hover:-translate-y-3 transition-all group">
+                    <div class="w-20 h-20 bg-rose-50 text-rose-500 rounded-[30px] flex items-center justify-center mx-auto mb-8 transition-colors group-hover:bg-rose-500 group-hover:text-white shadow-sm rotate-6 group-hover:rotate-0"><i class="fas fa-phone-alt text-4xl"></i></div>
+                    <h4 class="font-bold text-xs uppercase tracking-widest mb-3">Call Center</h4>
+                    <p id="textPhone" class="text-[11px] text-stone-400 italic font-medium"></p>
                 </a>
+            </div>
+            
+            <div class="mt-24 bg-white/60 p-16 rounded-[70px] border border-rose-50 flex flex-col md:flex-row items-center gap-12 shadow-sm">
+                <div class="w-24 h-24 bg-rose-100 rounded-full flex items-center justify-center shrink-0 shadow-lg">
+                    <i class="fas fa-map-marker-alt text-4xl text-rose-500"></i>
+                </div>
+                <div>
+                    <h3 class="text-3xl font-sriracha text-stone-800 mb-4">หน้าร้านหลัก (Main Store)</h3>
+                    <p class="text-stone-400 text-sm leading-loose">โซนแฟชั่นสตรี ชั้น 2 ห้างสรรพสินค้าพรีเมียมใจกลางเมือง <br/> เปิดบริการทุกวัน 10:00 - 21:00 น. แวะมาลองชุดสวยๆ กันได้นะคะ</p>
+                </div>
             </div>
         </div>
 
-    </div>
+    </main>
 
     <!-- Footer -->
-    <footer class="bg-white py-24 border-t border-rose-50 mt-20 relative overflow-hidden">
+    <footer class="bg-white py-32 border-t-4 border-rose-50 relative overflow-hidden mt-auto">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] bg-rose-50/20 rounded-full blur-[100px] -z-10 -mt-[600px]"></div>
         <div class="max-w-7xl mx-auto px-6 flex flex-col items-center">
-            <h2 class="text-5xl font-sriracha text-rose-500 mb-8">Praewa Fashion</h2>
-            <p class="text-stone-400 text-sm max-w-sm text-center leading-relaxed mb-12 italic">
-                "ส่งต่อความสวยและความมั่นใจผ่านเสื้อผ้าที่คุณรัก"
+            <h2 class="text-6xl font-sriracha text-rose-500 mb-8 tracking-tighter">Praewa Fashion</h2>
+            <p class="text-stone-400 text-[14px] max-w-md text-center leading-loose mb-16 italic font-medium">
+                "เราเชื่อว่าผู้หญิงทุกคนมีความสวยในแบบของตัวเอง <br/> ส่งต่อความมั่นใจผ่านเสื้อผ้าที่คุณรักด้วยหัวใจค่ะ"
             </p>
-            <div class="text-[10px] uppercase tracking-[0.4em] text-stone-300 font-bold">
-                &copy; 2026 Praewa Fashion Professional Store | All Rights Reserved
+            <div class="flex gap-10 mb-20">
+                <a href="#" class="text-stone-300 hover:text-rose-500 text-2xl transition-all hover:scale-125"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="text-stone-300 hover:text-rose-500 text-2xl transition-all hover:scale-125"><i class="fab fa-line"></i></a>
+                <a href="#" class="text-stone-300 hover:text-rose-500 text-2xl transition-all hover:scale-125"><i class="fas fa-phone-alt"></i></a>
+            </div>
+            <div class="text-[10px] uppercase tracking-[0.5em] text-stone-300 font-bold border-t border-rose-50 pt-12 w-full text-center">
+                &copy; 2026 Praewa Fashion Professional Store | Powering your Confidence
             </div>
         </div>
     </footer>
 
     <!-- Modals -->
+    <!-- Admin Login -->
     <div id="loginModal" class="modal-overlay">
-        <div class="modal-content text-center">
-            <h3 class="text-3xl font-sriracha mb-8">Admin Login</h3>
-            <input type="password" id="passInp" placeholder="รหัสผ่าน (admin1234)" class="w-full bg-stone-50 p-5 rounded-3xl mb-6 text-center font-bold outline-none border border-transparent focus:border-rose-200">
-            <button onclick="doLogin()" class="btn-rose w-full py-4 rounded-3xl font-bold uppercase tracking-widest text-xs">เข้าสู่ระบบ</button>
-            <button onclick="closeModals()" class="mt-4 text-stone-300 text-xs">ปิด</button>
+        <div class="modal-content text-center overflow-hidden relative">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 rounded-full -mr-16 -mt-16"></div>
+            <h3 class="text-4xl font-sriracha mb-10 text-stone-800">เจ้าของร้าน Login</h3>
+            <div class="bg-stone-50 p-10 rounded-[40px] mb-8 border border-rose-50 shadow-inner">
+                <input type="password" id="passInp" placeholder="รหัสผ่าน (admin1234)" class="w-full bg-transparent text-2xl text-center font-bold outline-none placeholder:text-stone-200">
+            </div>
+            <button onclick="doLogin()" class="btn-sweet w-full py-5 font-bold uppercase tracking-widest text-sm mb-4">เข้าสู่โหมดจัดการ</button>
+            <button onclick="closeModals()" class="text-stone-300 text-xs font-bold hover:text-stone-500 transition-colors uppercase tracking-widest">ปิดหน้าต่าง</button>
         </div>
     </div>
 
+    <!-- Product Form -->
     <div id="productModal" class="modal-overlay">
-        <div class="modal-content max-w-lg">
-            <h3 id="formTitle" class="text-3xl font-sriracha mb-6">จัดการสินค้า</h3>
-            <form id="pForm" class="space-y-4 max-h-[60vh] overflow-y-auto px-2">
-                <input type="hidden" id="p_id">
-                <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">ชื่อสินค้า</label><input type="text" id="p_name" required class="w-full bg-stone-50 p-3 rounded-xl outline-none"></div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">ราคา</label><input type="number" id="p_price" required class="w-full bg-stone-50 p-3 rounded-xl outline-none"></div>
-                    <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">สต๊อก</label><input type="number" id="p_stock" required class="w-full bg-stone-50 p-3 rounded-xl outline-none"></div>
+        <div class="modal-content max-w-xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+            <div class="bg-stone-900 p-10 flex justify-between items-center text-white">
+                <div>
+                    <h3 id="formTitle" class="text-3xl font-sriracha">จัดการสินค้า</h3>
+                    <p class="text-[9px] uppercase tracking-[0.3em] text-stone-500 mt-1">Excel Database Management</p>
                 </div>
-                <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">หมวดหมู่</label>
-                    <select id="p_cat" class="w-full bg-stone-50 p-3 rounded-xl outline-none">
+                <button onclick="closeModals()" class="text-stone-500 hover:text-white transition-colors"><i class="fas fa-times text-2xl"></i></button>
+            </div>
+            <form id="pForm" class="p-10 space-y-6 overflow-y-auto custom-scroll flex-1">
+                <input type="hidden" id="p_id">
+                <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-2 block">ชื่อสินค้า</label><input type="text" id="p_name" required class="w-full bg-stone-50 p-4 rounded-2xl outline-none border border-stone-100 focus:border-rose-300 font-bold"></div>
+                <div class="grid grid-cols-2 gap-6">
+                    <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-2 block">ราคา (฿)</label><input type="number" id="p_price" required class="w-full bg-stone-50 p-4 rounded-2xl outline-none"></div>
+                    <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-2 block">สต๊อกสินค้า</label><input type="number" id="p_stock" required class="w-full bg-stone-50 p-4 rounded-2xl outline-none"></div>
+                </div>
+                <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-2 block">หมวดหมู่</label>
+                    <select id="p_cat" class="w-full bg-stone-50 p-4 rounded-2xl outline-none border border-stone-100">
                         <option>เดรส</option><option>เสื้อ</option><option>กระโปรง</option><option>กางเกง</option>
                     </select>
                 </div>
-                <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">รูปภาพ (URL)</label><input type="text" id="p_img" class="w-full bg-stone-50 p-3 rounded-xl outline-none"></div>
-                <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest">รายละเอียด</label><textarea id="p_desc" class="w-full bg-stone-50 p-3 rounded-xl outline-none h-24"></textarea></div>
-                <button type="submit" id="submitBtn" class="btn-rose w-full py-4 rounded-3xl font-bold uppercase tracking-widest text-xs">บันทึกลง Excel</button>
+                <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-2 block">รูปภาพ (URL)</label><input type="text" id="p_img" class="w-full bg-stone-50 p-4 rounded-2xl outline-none" placeholder="https://..."></div>
+                <div><label class="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-2 block">รายละเอียดสินค้า</label><textarea id="p_desc" class="w-full bg-stone-50 p-4 rounded-2xl outline-none h-32 resize-none" placeholder="บอกรายละเอียดเนื้อผ้า หรือจุดเด่นของชุดนี้..."></textarea></div>
+                <button type="submit" id="submitBtn" class="btn-sweet w-full py-5 font-bold uppercase tracking-widest text-xs">บันทึกข้อมูลลง Excel</button>
             </form>
-            <button onclick="closeModals()" class="w-full mt-2 py-3 text-stone-300 text-xs">ยกเลิก</button>
         </div>
     </div>
 
+    <!-- Store Settings -->
     <div id="settingsModal" class="modal-overlay">
         <div class="modal-content">
-            <h3 class="text-3xl font-sriracha mb-8">ข้อมูลร้านค้า</h3>
-            <div class="space-y-4">
-                <div><label class="text-[10px] font-bold">Facebook</label><input type="text" id="s_fb" class="w-full bg-stone-50 p-3 rounded-xl"></div>
-                <div><label class="text-[10px] font-bold">Line ID</label><input type="text" id="s_line" class="w-full bg-stone-50 p-3 rounded-xl"></div>
-                <div><label class="text-[10px] font-bold">เบอร์โทร</label><input type="text" id="s_phone" class="w-full bg-stone-50 p-3 rounded-xl"></div>
-                <button onclick="saveStoreSettings()" class="btn-rose w-full py-4 rounded-3xl font-bold uppercase tracking-widest text-xs">อัปเดตข้อมูล</button>
+            <h3 class="text-3xl font-sriracha mb-10 text-stone-800">แก้ไขข้อมูลติดต่อร้าน</h3>
+            <div class="space-y-6">
+                <div><label class="text-[10px] font-bold uppercase text-stone-400 mb-2 block">Facebook Page Link</label><input type="text" id="s_fb" class="w-full bg-stone-50 p-4 rounded-2xl outline-none border border-stone-100"></div>
+                <div><label class="text-[10px] font-bold uppercase text-stone-400 mb-2 block">Line ID</label><input type="text" id="s_line" class="w-full bg-stone-50 p-4 rounded-2xl outline-none border border-stone-100"></div>
+                <div><label class="text-[10px] font-bold uppercase text-stone-400 mb-2 block">เบอร์โทรศัพท์</label><input type="text" id="s_phone" class="w-full bg-stone-50 p-4 rounded-2xl outline-none border border-stone-100"></div>
+                <button onclick="saveStoreSettings()" class="btn-sweet w-full py-5 font-bold uppercase tracking-widest text-xs mt-6">บันทึกการเปลี่ยนแปลง</button>
             </div>
-            <button onclick="closeModals()" class="w-full mt-4 text-stone-300 text-xs">ปิด</button>
+            <button onclick="closeModals()" class="w-full mt-6 text-stone-300 text-xs font-bold uppercase tracking-widest">ยกเลิก</button>
         </div>
     </div>
 
     <script>
         // ==========================================
-        // 🌸 ตั้งค่า API URL ถาวรตรงนี้เพื่อให้คนอื่นเห็นข้อมูล 🌸
+        // 🌸 เชื่อมต่อฐานข้อมูล Excel อัตโนมัติ 🌸
         // ==========================================
-        const HARDCODED_API_URL = "https://script.google.com/macros/s/AKfycbzexSWRpW2nAsIGUCuMxlg3KZ1uXEmqU7iyGhTukN1wGZ0SDB6VtP14an-o8W4z1miw/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbzexSWRpW2nAsIGUCuMxlg3KZ1uXEmqU7iyGhTukN1wGZ0SDB6VtP14an-o8W4z1miw/exec";
         // ==========================================
 
         let products = [];
@@ -302,21 +346,17 @@
         let isAdmin = false;
         let activeCat = 'ทั้งหมด';
         let searchQuery = '';
-        let apiUrl = localStorage.getItem('praewa_api_url') || HARDCODED_API_URL;
 
         window.onload = async () => {
-            if (apiUrl) {
-                await fetchData();
-                // ระบบ Auto-Refresh ดึงข้อมูลใหม่ทุก 30 วินาที
-                setInterval(fetchData, 30000);
-            }
-            else renderProducts();
+            await fetchData();
+            // ระบบ Auto-Refresh ดึงข้อมูลใหม่ทุก 1 นาที
+            setInterval(fetchData, 60000);
         };
 
         async function fetchData() {
-            if (!apiUrl) return;
+            if (!API_URL) return;
             try {
-                const res = await fetch(apiUrl);
+                const res = await fetch(API_URL);
                 const data = await res.json();
                 products = data.products || [];
                 if (data.settings) storeSettings = data.settings;
@@ -344,39 +384,48 @@
             });
 
             const gridHtml = filtered.map(p => `
-                <div class="product-card group bg-white p-4 border border-rose-50 relative">
-                    <div class="img-container cursor-pointer" onclick="viewDetail('${p.ID}')">
-                        <img src="${p.Image || 'https://via.placeholder.com/400x533'}" class="w-full h-full object-cover">
-                        ${p.Stock <= 0 ? '<div class="absolute inset-0 bg-stone-900/40 backdrop-blur-[2px] flex items-center justify-center"><span class="bg-white px-4 py-2 rounded-full font-bold text-xs">OUT OF STOCK</span></div>' : ''}
+                <div class="product-card group relative flex flex-col">
+                    <div class="img-wrap cursor-pointer shadow-lg group-hover:shadow-rose-200/50 transition-all" onclick="viewDetail('${p.ID}')">
+                        <img src="${p.Image || 'https://via.placeholder.com/400x533'}" alt="${p.Name}">
+                        <div class="absolute top-4 left-4 flex gap-2">
+                            <span class="tag-stock">STOCK: ${p.Stock}</span>
+                        </div>
+                        ${p.Stock <= 0 ? '<div class="absolute inset-0 bg-stone-900/60 backdrop-blur-[4px] flex items-center justify-center"><span class="bg-white/90 text-stone-800 px-6 py-2 rounded-full font-bold text-xs uppercase tracking-widest shadow-xl">Out of Stock</span></div>' : ''}
                     </div>
                     ${isAdmin ? `
-                        <div class="absolute top-6 right-6 flex flex-col gap-2 z-10">
-                            <button onclick="editItem('${p.ID}')" class="w-10 h-10 bg-white/90 text-blue-500 rounded-full shadow-lg flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteItem('${p.ID}')" class="w-10 h-10 bg-white/90 text-red-500 rounded-full shadow-lg flex items-center justify-center hover:bg-red-500 hover:text-white transition-all"><i class="fas fa-trash"></i></button>
+                        <div class="absolute top-8 right-8 flex flex-col gap-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onclick="editItem('${p.ID}')" class="w-12 h-12 bg-white/90 text-blue-500 rounded-full shadow-2xl flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all transform scale-90 hover:scale-100"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteItem('${p.ID}')" class="w-12 h-12 bg-white/90 text-red-500 rounded-full shadow-2xl flex items-center justify-center hover:bg-red-500 hover:text-white transition-all transform scale-90 hover:scale-100"><i class="fas fa-trash"></i></button>
                         </div>
                     ` : ''}
-                    <div class="p-6 text-center">
-                        <p class="text-[9px] uppercase tracking-widest text-rose-300 font-bold mb-1">${p.Category}</p>
-                        <h4 class="text-sm font-medium text-stone-700 truncate mb-2">${p.Name}</h4>
-                        <p class="text-rose-500 font-bold">฿${Number(p.Price).toLocaleString()}</p>
+                    <div class="p-8 pt-4 text-center">
+                        <p class="text-[9px] uppercase tracking-[0.3em] text-rose-300 font-bold mb-2">${p.Category}</p>
+                        <h4 class="text-lg font-medium text-stone-700 truncate mb-3 font-prompt tracking-tight px-4">${p.Name}</h4>
+                        <p class="text-rose-500 font-bold text-2xl font-prompt">฿${Number(p.Price).toLocaleString()}</p>
+                        <button onclick="addToCart('${p.ID}')" class="mt-6 w-full py-3 rounded-2xl text-[10px] font-bold uppercase tracking-widest transition-all ${p.Stock > 0 ? 'bg-rose-50 text-rose-400 hover:bg-rose-500 hover:text-white shadow-sm' : 'bg-stone-100 text-stone-300 cursor-not-allowed'}">
+                            ${p.Stock > 0 ? 'ใส่ตะกร้า' : 'สินค้าหมด'}
+                        </button>
                     </div>
                 </div>
             `).join('');
 
-            document.getElementById('shopGrid').innerHTML = gridHtml || '<p class="col-span-full py-20 text-center text-stone-300 italic">ไม่พบสินค้าที่คุณต้องการค่ะ</p>';
-            document.getElementById('homeGrid').innerHTML = products.slice(0, 4).map(p => `
-                <div class="product-card group bg-white p-4 border border-rose-50 relative">
-                    <div class="img-container cursor-pointer" onclick="viewDetail('${p.ID}')">
+            const shopGrid = document.getElementById('shopGrid');
+            const homeGrid = document.getElementById('homeGrid');
+            
+            if(shopGrid) shopGrid.innerHTML = gridHtml || '<p class="col-span-full py-32 text-center text-rose-200 italic font-sriracha text-2xl">ไม่พบสินค้าที่คุณต้องการค่ะ...</p>';
+            if(homeGrid) homeGrid.innerHTML = filtered.slice(0, 4).map(p => `
+                 <div class="product-card group relative overflow-hidden flex flex-col bg-white/50 border-none shadow-none hover:shadow-xl transition-all">
+                    <div class="img-wrap cursor-pointer" onclick="viewDetail('${p.ID}')">
                         <img src="${p.Image || 'https://via.placeholder.com/400x533'}" class="w-full h-full object-cover">
                     </div>
-                    <div class="p-4 text-center">
-                        <h4 class="text-xs font-medium truncate">${p.Name}</h4>
-                        <p class="text-rose-500 font-bold text-sm">฿${Number(p.Price).toLocaleString()}</p>
+                    <div class="p-6 text-center">
+                        <h4 class="text-sm font-medium truncate font-prompt mb-1">${p.Name}</h4>
+                        <p class="text-rose-500 font-bold text-lg font-prompt">฿${Number(p.Price).toLocaleString()}</p>
                     </div>
                 </div>
             `).join('');
             
-            document.getElementById('itemCount').innerText = `แสดงทั้งหมด ${filtered.length} รายการ`;
+            document.getElementById('itemCount').innerText = `แสดงสินค้า ${filtered.length} รายการ`;
         }
 
         function viewDetail(id) {
@@ -384,24 +433,39 @@
             if (!p) return;
             
             document.getElementById('detailContent').innerHTML = `
-                <div class="bg-white rounded-[60px] overflow-hidden shadow-2xl flex flex-col md:flex-row border border-rose-50">
+                <div class="bg-white rounded-[70px] overflow-hidden shadow-[0_50px_120px_-30px_rgba(0,0,0,0.15)] flex flex-col md:flex-row border border-white">
                     <div class="md:w-1/2 aspect-[4/5] overflow-hidden">
-                        <img src="${p.Image}" class="w-full h-full object-cover">
+                        <img src="${p.Image}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-[3s]">
                     </div>
-                    <div class="md:w-1/2 p-8 md:p-16 flex flex-col justify-center">
-                        <p class="text-[10px] font-bold text-stone-300 uppercase tracking-widest mb-4">Collection / ${p.Category}</p>
-                        <h1 class="text-5xl font-sriracha text-stone-800 mb-6">${p.Name}</h1>
-                        <p class="text-4xl text-rose-500 font-bold mb-8">฿${Number(p.Price).toLocaleString()}</p>
-                        <div class="bg-rose-50/50 p-6 rounded-[30px] border border-rose-50 mb-10">
-                            <h4 class="text-[11px] font-bold uppercase text-stone-400 mb-2">Product Info</h4>
-                            <p class="text-sm text-stone-500 leading-relaxed whitespace-pre-line">${p.Description || 'คัดสรรผ้าคุณภาพดี สวมใส่สบาย ดีไซน์ทันสมัยที่ช่วยเสริมบุคลิกภาพให้คุณดูโดดเด่น'}</p>
-                            <p class="mt-4 text-[11px] font-bold text-rose-300 uppercase tracking-widest">STOCK: ${p.Stock} UNITS</p>
+                    <div class="md:w-1/2 p-12 md:p-24 flex flex-col justify-center relative overflow-hidden">
+                        <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-rose-50 rounded-full blur-3xl opacity-50"></div>
+                        <p class="text-[10px] font-bold text-rose-300 uppercase tracking-[0.4em] mb-8">Collection / ${p.Category}</p>
+                        <h1 class="text-6xl font-sriracha text-stone-800 mb-8 leading-tight">${p.Name}</h1>
+                        <div class="flex items-baseline gap-6 mb-10">
+                            <p class="text-5xl text-rose-500 font-bold tracking-tighter">฿${Number(p.Price).toLocaleString()}</p>
+                            <p class="text-lg text-stone-200 line-through">฿${(Number(p.Price)*1.2).toLocaleString()}</p>
                         </div>
-                        <div class="flex gap-4">
-                            <button onclick="addToCart('${p.ID}')" class="flex-1 btn-rose py-5 rounded-full font-bold text-xs uppercase tracking-widest shadow-2xl ${p.Stock <= 0 ? 'opacity-50 pointer-events-none' : ''}">
-                                ${p.Stock > 0 ? 'Add to Bag' : 'Out of Stock'}
+                        <div class="bg-rose-50/50 p-8 rounded-[40px] border border-rose-50 mb-12 relative z-10">
+                            <h4 class="text-[11px] font-bold uppercase text-stone-400 mb-4 tracking-widest flex items-center"><i class="fas fa-info-circle mr-2 text-rose-300"></i> Product Details</h4>
+                            <p class="text-sm text-stone-500 leading-relaxed whitespace-pre-line font-medium italic mb-6">"${p.Description || 'ชุดสวยดีไซน์พรีเมียม สวมใส่สบาย เสริมความมั่นใจในทุกท่วงท่าของคุณ'}"</p>
+                            <div class="flex items-center gap-3">
+                                <div class="w-2 h-2 rounded-full ${p.Stock > 0 ? 'bg-green-400' : 'bg-red-400'}"></div>
+                                <p class="text-[11px] font-bold text-stone-400 uppercase tracking-widest">STOCK: ${p.Stock} UNITS AVAILABLE</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-10">
+                             <p class="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-4 block">Select Size (ไซส์)</p>
+                             <div class="flex gap-4">
+                                ${['S', 'M', 'L', 'XL'].map(s => `<button class="w-12 h-12 rounded-2xl border-2 border-rose-50 text-stone-400 font-bold hover:border-rose-500 hover:text-rose-500 transition-all">${s}</button>`).join('')}
+                             </div>
+                        </div>
+
+                        <div class="flex gap-5">
+                            <button onclick="addToCart('${p.ID}')" class="flex-1 btn-sweet py-6 rounded-full font-bold text-xs uppercase tracking-[0.3em] shadow-2xl ${p.Stock <= 0 ? 'opacity-40 pointer-events-none' : ''}">
+                                ${p.Stock > 0 ? 'Add to Shopping Bag' : 'Out of Stock'}
                             </button>
-                            <button onclick="showPage('shop')" class="w-16 h-16 bg-stone-50 rounded-full flex items-center justify-center text-stone-300 hover:text-rose-500 transition-all shadow-sm"><i class="fas fa-times text-xl"></i></button>
+                            <button onclick="showPage('shop')" class="w-20 h-20 bg-stone-50 rounded-full flex items-center justify-center text-stone-300 hover:text-rose-500 transition-all shadow-sm border border-white hover:border-rose-100"><i class="fas fa-times text-2xl"></i></button>
                         </div>
                     </div>
                 </div>
@@ -409,9 +473,15 @@
             showPage('detail');
         }
 
+        // --- Cart System ---
         function addToCart(id) {
             const p = products.find(x => x.ID == id);
-            if (p) { cart.push(p); updateCartUI(); alert("เพิ่มลงตะกร้าแล้วค่ะ 💖"); }
+            if (p) { 
+                if(p.Stock <= 0) return alert("ขออภัย สินค้าหมดชั่วคราวค่ะ");
+                cart.push(p); 
+                updateCartUI(); 
+                alert("เพิ่มลงตะกร้าแล้วค่ะ ขอให้สวยสมหวังนะคะ 💖"); 
+            }
         }
 
         function updateCartUI() {
@@ -421,35 +491,46 @@
             let total = 0;
 
             if (cart.length === 0) {
-                list.innerHTML = `<div class="bg-white p-24 rounded-[60px] text-center shadow-xl border border-rose-50"><i class="fas fa-shopping-bag text-5xl text-rose-100 mb-6"></i><p class="text-stone-400 text-sm">ยังไม่มีสินค้าในตะกร้าเลยค่ะ</p><button onclick="showPage('shop')" class="mt-8 bg-stone-900 text-white px-10 py-3 rounded-full text-xs font-bold uppercase">Shop Now</button></div>`;
+                list.innerHTML = `
+                    <div class="bg-white p-32 rounded-[70px] text-center shadow-xl border border-rose-50 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-rose-50/20 rounded-full -mr-32 -mt-32"></div>
+                        <i class="fas fa-shopping-bag text-8xl text-rose-100 mb-10"></i>
+                        <h3 class="text-2xl font-sriracha text-stone-400">ตะกร้าว่างเปล่าค่ะ</h3>
+                        <p class="text-stone-300 text-sm mt-2 font-medium uppercase tracking-widest italic">ยังไม่มีชุดสวยๆ ในตะกร้าเลย ลองเลือกดูก่อนนะคะ</p>
+                        <button onclick="showPage('shop')" class="mt-12 bg-stone-900 text-white px-12 py-5 rounded-full text-xs font-bold uppercase tracking-widest shadow-xl shadow-stone-200">Go to Shopping</button>
+                    </div>`;
                 document.getElementById('cartSummary').style.display = 'none';
                 badge.style.display = 'none';
             } else {
                 list.innerHTML = cart.map((item, i) => {
                     total += Number(item.Price);
-                    return `<div class="bg-white p-6 md:p-8 rounded-[40px] shadow-sm border border-rose-50 flex items-center gap-8"><img src="${item.Image}" class="w-20 h-28 object-cover rounded-2xl shadow-md"><div class="flex-1"><p class="text-[10px] text-rose-300 font-bold mb-1">${item.Category}</p><h4 class="text-lg font-medium text-stone-700">${item.Name}</h4><p class="text-rose-500 font-bold mt-2">฿${Number(item.Price).toLocaleString()}</p></div><button onclick="removeFromCart(${i})" class="text-stone-200 hover:text-red-400 p-4 transition-all"><i class="fas fa-trash-alt text-xl"></i></button></div>`;
+                    return `
+                        <div class="bg-white p-8 md:p-12 rounded-[50px] shadow-sm border border-rose-50 flex items-center gap-10 hover:shadow-xl transition-all">
+                            <img src="${item.Image}" class="w-32 h-40 object-cover rounded-[30px] shadow-lg">
+                            <div class="flex-1">
+                                <p class="text-[10px] text-rose-300 font-bold uppercase tracking-widest mb-2">${item.Category}</p>
+                                <h4 class="text-2xl font-medium text-stone-700 font-prompt">${item.Name}</h4>
+                                <p class="text-rose-500 font-bold text-3xl mt-4 font-prompt tracking-tighter">฿${Number(item.Price).toLocaleString()}</p>
+                            </div>
+                            <button onclick="removeFromCart(${i})" class="w-16 h-16 bg-rose-50 text-rose-200 hover:text-red-400 rounded-full transition-all flex items-center justify-center text-2xl hover:bg-red-50"><i class="fas fa-trash-alt"></i></button>
+                        </div>`;
                 }).join('');
                 document.getElementById('cartSummary').style.display = 'flex';
                 totalDisplay.innerText = `฿${total.toLocaleString()}`;
                 badge.innerText = cart.length;
                 badge.style.display = 'flex';
             }
-            document.getElementById('cartItemsLabel').innerText = `คุณมีสินค้า ${cart.length} รายการในตะกร้า`;
+            document.getElementById('cartItemsLabel').innerText = `มีสินค้า ${cart.length} รายการ รอให้คุณเป็นเจ้าของค่ะ`;
         }
 
         function removeFromCart(i) { cart.splice(i, 1); updateCartUI(); }
 
         function checkout() {
-            const msg = encodeURIComponent(`สวัสดีค่ะ สั่งซื้อสินค้า:\n${cart.map(c => `- ${c.Name} (฿${c.Price})`).join('\n')}\nรวมทั้งสิ้น: ฿${cart.reduce((a,b) => a + Number(b.Price), 0).toLocaleString()}`);
+            const msg = encodeURIComponent(`สวัสดีค่ะ สนใจสั่งซื้อสินค้าจาก Praewa Fashion ✨\n\nรายการ:\n${cart.map((c, idx) => `${idx+1}. ${c.Name} (฿${c.Price})`).join('\n')}\n\nรวมทั้งสิ้น: ฿${cart.reduce((a,b) => a + Number(b.Price), 0).toLocaleString()}\n\nรบกวนเช็คสินค้าให้ด้วยนะคะ ขอบคุณค่ะ 🙏💖`);
             window.open(`https://line.me/ti/p/${storeSettings.line}?text=${msg}`);
         }
 
-        function toggleSearch() {
-            const box = document.getElementById('searchBox');
-            box.classList.toggle('open');
-            if (box.classList.contains('open')) document.getElementById('searchInput').focus();
-        }
-
+        // --- Navigation & Search ---
         function handleSearch(val) {
             searchQuery = val;
             if (val.trim() !== "") showPage('shop');
@@ -459,7 +540,12 @@
         function filterCat(cat) {
             activeCat = cat;
             document.getElementById('currentCatTitle').innerText = cat;
-            document.querySelectorAll('#categoryFilter button').forEach(b => b.classList.toggle('text-rose-500', b.innerText === cat));
+            document.querySelectorAll('#categoryFilter button').forEach(b => {
+                const isActive = b.innerText === (cat === 'เดรส' ? 'ชุดเดรส' : cat === 'เสื้อ' ? 'เสื้อแฟชั่น' : cat);
+                b.classList.toggle('text-rose-500', isActive);
+                b.classList.toggle('active-cat', isActive);
+                b.classList.toggle('translate-x-3', isActive);
+            });
             renderProducts();
         }
 
@@ -470,28 +556,29 @@
             if(page) page.classList.add('active');
             const nav = document.getElementById(`nav-${pageId}`);
             if (nav) nav.classList.add('active');
-            window.scrollTo(0,0);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // --- Admin Controls ---
         function openLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
         function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); }
         
         function doLogin() {
             if (document.getElementById('passInp').value === 'admin1234') {
                 isAdmin = true;
-                document.getElementById('adminBar').classList.add('active');
+                document.getElementById('adminBar').style.display = 'block';
                 closeModals();
                 renderProducts();
-                alert("ยินดีต้อนรับกลับค่ะ เจ้าของร้าน 🌸");
-            } else alert("รหัสผ่านไม่ถูกต้อง");
+                alert("ยินดีต้อนรับกลับค่ะ เจ้าของร้านคนสวย 🌸✨");
+            } else alert("รหัสผ่านไม่ถูกต้องนะคะ ลองใหม่อีกครั้งค่ะ");
         }
 
-        function logoutAdmin() { isAdmin = false; document.getElementById('adminBar').classList.remove('active'); renderProducts(); }
+        function logoutAdmin() { isAdmin = false; document.getElementById('adminBar').style.display = 'none'; renderProducts(); }
 
         function openProductModal() {
             document.getElementById('pForm').reset();
             document.getElementById('p_id').value = "";
-            document.getElementById('formTitle').innerText = "เพิ่มสินค้าใหม่ลง Excel";
+            document.getElementById('formTitle').innerText = "เพิ่มสินค้าชิ้นใหม่ลง Excel";
             document.getElementById('submitBtn').innerText = "บันทึกลง Excel";
             document.getElementById('productModal').style.display = 'flex';
         }
@@ -505,8 +592,8 @@
             document.getElementById('p_cat').value = p.Category;
             document.getElementById('p_img').value = p.Image;
             document.getElementById('p_desc').value = p.Description || "";
-            document.getElementById('formTitle').innerText = "แก้ไขข้อมูลสินค้าเดิม";
-            document.getElementById('submitBtn').innerText = "บันทึกการแก้ไข";
+            document.getElementById('formTitle').innerText = "แก้ไขข้อมูลสินค้าใน Excel";
+            document.getElementById('submitBtn').innerText = "อัปเดตข้อมูลทับของเดิม";
             document.getElementById('productModal').style.display = 'flex';
         }
 
@@ -521,17 +608,18 @@
                 stock: document.getElementById('p_stock').value,
                 category: document.getElementById('p_cat').value,
                 image: document.getElementById('p_img').value,
-                description: document.getElementById('p_desc').value
+                description: document.getElementById('p_desc').value,
+                size: "S,M,L,XL", color: "ตามรูป"
             };
             showLoader(true);
             try {
-                await fetch(apiUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
                 setTimeout(async () => { 
                     await fetchData(); 
                     closeModals(); 
-                    alert("ดำเนินการสำเร็จ!"); 
+                    alert("บันทึกข้อมูลเรียบร้อยแล้วค่ะ! ✨"); 
                     showLoader(false);
-                }, 1500);
+                }, 2000);
             } catch(err) {
                 alert("เกิดข้อผิดพลาดในการบันทึก");
                 showLoader(false);
@@ -539,14 +627,14 @@
         };
 
         async function deleteItem(id) {
-            if (!confirm("ลบสินค้านี้ออกจาก Excel?")) return;
+            if (!confirm("คุณต้องการลบชุดนี้ออกจากร้านค้าและ Excel จริงๆ ใช่ไหมคะ?")) return;
             showLoader(true);
-            await fetch(apiUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete', id }) });
+            await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete', id }) });
             setTimeout(async () => { 
                 await fetchData(); 
-                alert("ลบสำเร็จ!"); 
+                alert("ลบข้อมูลสำเร็จแล้วค่ะ"); 
                 showLoader(false);
-            }, 1500);
+            }, 2000);
         }
 
         function openSettingsModal() {
@@ -564,18 +652,13 @@
                 phone: document.getElementById('s_phone').value
             };
             showLoader(true);
-            await fetch(apiUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
             setTimeout(async () => { 
                 await fetchData(); 
                 closeModals(); 
-                alert("อัปเดตข้อมูลร้านแล้วค่ะ"); 
+                alert("อัปเดตข้อมูลร้านค้าเรียบร้อยแล้วค่ะ 🌸"); 
                 showLoader(false);
-            }, 1500);
-        }
-
-        function changeApi() {
-            const url = prompt("วาง Deployment URL ของคุณ:", apiUrl);
-            if (url) { apiUrl = url; localStorage.setItem('praewa_api_url', url); fetchData(); }
+            }, 2000);
         }
 
         function showLoader(s) { document.getElementById('globalLoader').style.display = s ? 'flex' : 'none'; }
