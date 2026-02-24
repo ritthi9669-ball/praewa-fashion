@@ -73,7 +73,7 @@
     <!-- Loader -->
     <div id="globalLoader" class="fixed inset-0 bg-white/90 backdrop-blur-md z-[9999] flex flex-col items-center justify-center text-rose-50" style="display: none;">
         <i class="fas fa-heart fa-beat-custom text-5xl text-rose-500 mb-6"></i>
-        <p class="font-bold text-stone-400 text-[10px] uppercase tracking-[0.3em]">Processing...</p>
+        <p class="font-bold text-stone-400 text-[10px] uppercase tracking-[0.3em]">Syncing with Excel...</p>
     </div>
 
     <!-- Admin Bar -->
@@ -85,7 +85,7 @@
                 <button onclick="openSettingsModal()" class="hover:text-rose-300 font-bold">แก้ไขข้อมูลร้าน</button>
             </div>
             <div class="flex items-center gap-4">
-                <button onclick="changeApi()" class="text-stone-400 hover:text-white">ตั้งค่า API</button>
+                <button onclick="changeApi()" class="text-stone-400 hover:text-white">เปลี่ยน API (ชั่วคราว)</button>
                 <button onclick="logoutAdmin()" class="bg-rose-500 hover:bg-rose-600 px-4 py-1.5 rounded-full font-bold transition-all">ออกจากระบบ</button>
             </div>
         </div>
@@ -290,21 +290,31 @@
     </div>
 
     <script>
+        // ==========================================
+        // 🌸 ตั้งค่า API URL ถาวรตรงนี้เพื่อให้คนอื่นเห็นข้อมูล 🌸
+        // ==========================================
+        const HARDCODED_API_URL = "https://script.google.com/macros/s/AKfycbzexSWRpW2nAsIGUCuMxlg3KZ1uXEmqU7iyGhTukN1wGZ0SDB6VtP14an-o8W4z1miw/exec";
+        // ==========================================
+
         let products = [];
         let storeSettings = { facebook: '#', line: '@praewa', phone: '081-XXX-XXXX' };
         let cart = [];
         let isAdmin = false;
         let activeCat = 'ทั้งหมด';
         let searchQuery = '';
-        let apiUrl = localStorage.getItem('praewa_api_url') || '';
+        let apiUrl = localStorage.getItem('praewa_api_url') || HARDCODED_API_URL;
 
         window.onload = async () => {
-            if (apiUrl) await fetchData();
+            if (apiUrl) {
+                await fetchData();
+                // ระบบ Auto-Refresh ดึงข้อมูลใหม่ทุก 30 วินาที
+                setInterval(fetchData, 30000);
+            }
             else renderProducts();
         };
 
         async function fetchData() {
-            showLoader(true);
+            if (!apiUrl) return;
             try {
                 const res = await fetch(apiUrl);
                 const data = await res.json();
@@ -313,9 +323,8 @@
                 updateContactUI();
                 renderProducts();
             } catch (e) {
-                console.error(e);
+                console.error("Fetch failed:", e);
             }
-            showLoader(false);
         }
 
         function updateContactUI() {
@@ -517,7 +526,12 @@
             showLoader(true);
             try {
                 await fetch(apiUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-                setTimeout(() => { fetchData(); closeModals(); alert("ดำเนินการสำเร็จ!"); }, 1000);
+                setTimeout(async () => { 
+                    await fetchData(); 
+                    closeModals(); 
+                    alert("ดำเนินการสำเร็จ!"); 
+                    showLoader(false);
+                }, 1500);
             } catch(err) {
                 alert("เกิดข้อผิดพลาดในการบันทึก");
                 showLoader(false);
@@ -528,7 +542,11 @@
             if (!confirm("ลบสินค้านี้ออกจาก Excel?")) return;
             showLoader(true);
             await fetch(apiUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete', id }) });
-            setTimeout(() => { fetchData(); alert("ลบสำเร็จ!"); }, 1000);
+            setTimeout(async () => { 
+                await fetchData(); 
+                alert("ลบสำเร็จ!"); 
+                showLoader(false);
+            }, 1500);
         }
 
         function openSettingsModal() {
@@ -547,7 +565,12 @@
             };
             showLoader(true);
             await fetch(apiUrl, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            setTimeout(() => { fetchData(); closeModals(); alert("อัปเดตข้อมูลร้านแล้วค่ะ"); }, 1000);
+            setTimeout(async () => { 
+                await fetchData(); 
+                closeModals(); 
+                alert("อัปเดตข้อมูลร้านแล้วค่ะ"); 
+                showLoader(false);
+            }, 1500);
         }
 
         function changeApi() {
