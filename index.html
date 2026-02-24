@@ -3,387 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Praewa Fashion | ระบบจัดการร้านค้า Cloud</title>
+    <title>Praewa Fashion | สวย มั่นใจ ทุกสไตล์ของคุณ</title>
     
-    <!-- Google Fonts -->
+    <!-- Google Fonts & Font Awesome -->
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&family=Sriracha&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
             --primary-color: #f472b6; 
-            --accent-color: #f9a8d4; 
+            --accent-color: #fbcfe8; 
             --bg-light: #fff5f7; 
             --text-main: #502d3c; 
             --text-muted: #9d7c8a;
             --border-color: #fbcfe8;
             --white: #ffffff;
-            --danger-color: #f87171;
-            --glass: rgba(255, 255, 255, 0.7);
+            --glass: rgba(255, 255, 255, 0.9);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Prompt', sans-serif;
             background-color: var(--bg-light);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(251, 207, 232, 0.3) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(251, 207, 232, 0.3) 0%, transparent 20%);
             color: var(--text-main);
             line-height: 1.6;
-            min-height: 100vh;
         }
 
-        button { cursor: pointer; border: none; font-family: inherit; transition: all 0.2s ease; }
+        button { cursor: pointer; border: none; font-family: inherit; transition: 0.2s; border-radius: 12px; }
         .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-        /* Loading Overlay */
-        #loadingOverlay {
-            position: fixed; inset: 0; background: white; z-index: 2000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-
-        /* Header */
+        /* Navigation */
         header {
             background-color: var(--glass);
             backdrop-filter: blur(10px);
             border-bottom: 2px solid var(--border-color);
             position: sticky; top: 0; z-index: 100;
         }
-        .nav-container { height: 90px; display: flex; flex-direction: column; justify-content: center; }
-        .nav-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .logo { font-family: 'Sriracha', cursive; font-size: 32px; color: var(--primary-color); text-decoration: none; }
+        .nav-container { height: 90px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-family: 'Sriracha', cursive; font-size: 36px; color: var(--primary-color); text-decoration: none; text-shadow: 1px 1px 0 white; }
         
-        .header-icons { display: flex; gap: 15px; align-items: center; }
-        .icon-btn { background: none; color: var(--primary-color); font-size: 18px; position: relative; }
-        .badge { position: absolute; top: -8px; right: -8px; background: #ff4785; color: white; font-size: 10px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .nav-actions { display: flex; gap: 15px; align-items: center; }
+        .icon-btn { background: none; color: var(--primary-color); font-size: 20px; position: relative; padding: 8px; border-radius: 50%; }
+        .icon-btn:hover { background: var(--bg-light); }
+        .badge { position: absolute; top: 0; right: 0; background: #ff4785; color: white; font-size: 10px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-        /* Hero */
+        /* Hero Area */
         .hero {
-            height: 300px;
-            background: linear-gradient(rgba(255,245,247,0.4), rgba(255,245,247,0.4)), url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=1200') center/cover;
-            display: flex; align-items: center; justify-content: center; margin-bottom: 40px; border-bottom: 5px solid var(--accent-color);
+            height: 350px;
+            background: linear-gradient(rgba(255,245,247,0.3), rgba(255,245,247,0.3)), url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&q=80&w=1200') center/cover;
+            display: flex; align-items: center; justify-content: center; margin-bottom: 40px; border-bottom: 8px solid var(--accent-color);
         }
-        .hero-box { background: rgba(255,255,255,0.85); padding: 30px; border-radius: 20px; text-align: center; }
+        .hero-box { background: rgba(255,255,255,0.9); padding: 30px; border-radius: 30px; text-align: center; box-shadow: 0 15px 35px rgba(244, 114, 182, 0.2); border: 2px solid white; }
+        .hero-box h1 { font-family: 'Sriracha', cursive; color: var(--primary-color); font-size: 40px; margin-bottom: 5px; }
+        .hero-box p { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); }
 
-        /* Grid */
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 30px; margin-bottom: 60px; }
-        .product-card { background: white; border-radius: 15px; overflow: hidden; position: relative; border: 1px solid transparent; transition: 0.3s; }
-        .p-image { aspect-ratio: 3/4; background: #fdf2f8; position: relative; }
-        .p-image img { width: 100%; height: 100%; object-fit: cover; }
-        .p-content { padding: 15px; text-align: center; }
-        .p-price { color: var(--primary-color); font-weight: 600; }
+        /* Filter Bar */
+        .filter-bar { display: flex; justify-content: center; gap: 12px; margin-bottom: 35px; overflow-x: auto; padding: 10px; scrollbar-width: none; }
+        .filter-bar::-webkit-scrollbar { display: none; }
+        .filter-btn { background: white; padding: 10px 25px; border-radius: 25px; font-size: 14px; border: 1px solid var(--border-color); color: var(--text-muted); white-space: nowrap; font-weight: 500; }
+        .filter-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 5px 15px rgba(244, 114, 182, 0.3); }
 
-        /* Admin Controls */
-        .admin-controls { position: absolute; top: 10px; right: 10px; display: flex; flex-direction: column; gap: 5px; z-index: 10; }
-        .btn-circle { width: 34px; height: 34px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .btn-edit { background: #60a5fa; }
-        .btn-del { background: var(--danger-color); }
-        .add-placeholder { border: 2px dashed var(--border-color); display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-muted); aspect-ratio: 3/4; background: white; border-radius: 15px; }
+        /* Product Grid */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 30px; margin-bottom: 80px; }
+        .product-card { background: white; border-radius: 25px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.02); transition: 0.4s; position: relative; border: 1px solid transparent; }
+        .product-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(244, 114, 182, 0.15); border-color: var(--accent-color); }
+        .p-image { aspect-ratio: 3/4; overflow: hidden; background: #fdf2f8; }
+        .p-image img { width: 100%; height: 100%; object-fit: cover; transition: 0.6s; }
+        .product-card:hover .p-image img { transform: scale(1.1); }
+        .p-content { padding: 20px; text-align: center; }
+        .p-title { font-size: 15px; font-weight: 500; margin-bottom: 5px; color: var(--text-main); }
+        .p-price { color: var(--primary-color); font-weight: 600; font-size: 18px; }
 
-        /* Modals */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(80, 45, 60, 0.4); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-        .modal { background: white; width: 100%; max-width: 450px; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
-        .modal-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-        .modal-body { padding: 20px; }
-        .btn-block { width: 100%; padding: 12px; background: var(--primary-color); color: white; border-radius: 10px; font-weight: 500; margin-top: 10px; }
-        
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 12px; margin-bottom: 5px; color: var(--text-muted); }
-        .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; outline: none; }
+        .btn-add { width: 100%; padding: 12px; background: var(--bg-light); color: var(--primary-color); font-weight: 600; font-size: 14px; margin-top: 15px; border: 1px solid var(--border-color); border-radius: 12px; }
+        .btn-add:hover { background: var(--primary-color); color: white; }
 
-        /* Sidebar */
-        .sidebar { position: fixed; top: 0; right: -100%; width: 100%; max-width: 380px; height: 100%; background: white; z-index: 1100; transition: 0.3s ease; display: flex; flex-direction: column; box-shadow: -10px 0 30px rgba(0,0,0,0.05); }
+        /* Admin Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(80, 45, 60, 0.5); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal { background: white; width: 90%; max-width: 500px; border-radius: 30px; padding: 35px; position: relative; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 13px; margin-bottom: 8px; font-weight: 500; color: var(--text-muted); }
+        .form-group input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 12px; outline: none; background: #fafafa; }
+        .btn-block { width: 100%; padding: 14px; background: var(--primary-color); color: white; font-weight: 600; border-radius: 12px; }
+
+        /* Sidebar Cart */
+        .sidebar { position: fixed; top: 0; right: -100%; width: 100%; max-width: 380px; height: 100%; background: white; z-index: 1100; transition: 0.4s; box-shadow: -15px 0 40px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
         .sidebar.open { right: 0; }
+        .side-header { padding: 25px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--bg-light); }
+        .side-content { flex: 1; overflow-y: auto; padding: 20px; }
         
-        footer { background: #fff; padding: 40px 0; border-top: 4px solid var(--accent-color); text-align: center; font-size: 12px; color: var(--text-muted); }
+        .cart-item { display: flex; gap: 15px; margin-bottom: 15px; padding: 12px; background: var(--bg-light); border-radius: 15px; border: 1px solid var(--border-color); }
+        .cart-item img { width: 60px; height: 80px; object-fit: cover; border-radius: 8px; }
+        
+        footer { background: #fff; padding: 50px 0; border-top: 8px solid var(--accent-color); text-align: center; margin-top: 60px; }
+        .footer-logo { font-family: 'Sriracha', cursive; font-size: 28px; color: var(--primary-color); margin-bottom: 10px; display: block; }
     </style>
 </head>
 <body>
 
-    <div id="loadingOverlay">
-        <i class="fas fa-circle-notch fa-spin" style="font-size: 40px; color: var(--primary-color); margin-bottom: 15px;"></i>
-        <p>กำลังเชื่อมต่อระบบ Cloud...</p>
-    </div>
-
     <header>
         <div class="container nav-container">
-            <div class="nav-top">
-                <div class="header-left">
-                    <button id="adminBtn" class="icon-btn" onclick="handleAdminLogin()" title="จัดการร้าน">
-                        <i class="fa-solid fa-gear" id="adminIcon"></i>
-                    </button>
-                    <button id="logoutBtn" class="icon-btn" style="display:none; color:var(--danger-color); margin-left:10px;" onclick="logout()">
-                        <i class="fa-solid fa-power-off"></i>
-                    </button>
-                </div>
-                <a href="#" class="logo" id="displayStoreName">Praewa Fashion</a>
-                <div class="header-icons">
-                    <button class="icon-btn" onclick="toggleCart(true)">
-                        <i class="fa-solid fa-cart-shopping"></i>
-                        <span id="cartBadge" class="badge" style="display: none;">0</span>
-                    </button>
-                </div>
+            <div class="nav-left">
+                <button class="icon-btn" onclick="openAdmin()" title="จัดการร้าน"><i class="fas fa-cog"></i></button>
+            </div>
+            <a href="#" class="logo">Praewa Fashion</a>
+            <div class="nav-actions">
+                <button class="icon-btn" onclick="toggleCart(true)">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span id="cartBadge" class="badge" style="display: none;">0</span>
+                </button>
             </div>
         </div>
     </header>
 
     <div class="hero">
         <div class="hero-box">
-            <h1 id="heroTitle">Luxury Collection</h1>
-            <p>อัปเดตแฟชั่นใหม่ผ่านระบบ Cloud</p>
+            <p>Welcome to</p>
+            <h1>New Arrivals</h1>
+            <p>สวย มั่นใจ ทุกสไตล์ของคุณ</p>
         </div>
     </div>
 
     <div class="container">
+        <div class="filter-bar" id="categoryBar"></div>
+        <div id="loadingStatus" style="text-align: center; padding: 40px; color: var(--text-muted); display: none;">
+            <i class="fas fa-circle-notch fa-spin" style="font-size: 30px; margin-bottom: 10px;"></i><br>
+            กำลังอัปเดตข้อมูลจาก Excel...
+        </div>
         <div class="product-grid" id="productGrid"></div>
     </div>
 
-    <!-- Modals -->
-    <div id="loginModal" class="modal-overlay">
-        <div class="modal" style="max-width: 320px;">
-            <div class="modal-header"><h3>แอดมินล็อกอิน</h3><button onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button></div>
-            <div class="modal-body">
-                <div class="form-group"><label>Username</label><input type="text" id="userInp" value="admin1234"></div>
-                <div class="form-group"><label>Password</label><input type="password" id="passInp" value="admin1234"></div>
-                <button class="btn-block" onclick="doLogin()">Login</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="productModal" class="modal-overlay">
+    <!-- Admin Modal -->
+    <div id="adminModal" class="modal-overlay">
         <div class="modal">
-            <div class="modal-header"><h3 id="pModalTitle">จัดการสินค้า</h3><button onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button></div>
-            <div class="modal-body">
-                <div class="form-group"><label>ชื่อสินค้า</label><input type="text" id="pNameInp"></div>
-                <div class="form-group"><label>ราคา (บาท)</label><input type="number" id="pPriceInp"></div>
-                <div class="form-group"><label>URL รูปภาพ</label><input type="text" id="pImgInp"></div>
-                <button class="btn-block" id="saveProductBtn" onclick="saveProduct()">บันทึกลง Cloud</button>
+            <button onclick="closeModals()" style="position:absolute; right:25px; top:25px; background:none; color:var(--text-muted); font-size: 18px;"><i class="fas fa-times"></i></button>
+            
+            <div id="loginSection">
+                <h3 style="margin-bottom:20px; font-family: 'Sriracha'; color: var(--primary-color); font-size: 24px;">แอดมินล็อกอิน</h3>
+                <div class="form-group"><label>Username</label><input type="text" id="userInp" placeholder="admin1234"></div>
+                <div class="form-group"><label>Password</label><input type="password" id="passInp" placeholder="admin1234"></div>
+                <button class="btn-block" onclick="doLogin()">เข้าสู่ระบบ</button>
+            </div>
+
+            <div id="configSection" style="display: none;">
+                <h3 style="margin-bottom:15px; font-family: 'Sriracha'; color: var(--primary-color); font-size: 24px;">ตั้งค่าฐานข้อมูล Excel</h3>
+                <p style="font-size:12px; color: var(--text-muted); margin-bottom:15px;">
+                    <b>วิธีจัดการสินค้า:</b><br>
+                    1. <a href="https://docs.google.com/spreadsheets/d/1yYm_8l0mY6-x6n6x6n6x6n6x6n6x6n6/copy" target="_blank" style="color: var(--primary-color); font-weight:600;">คลิกที่นี่เพื่อคัดลอกไฟล์ Excel ต้นแบบ</a><br>
+                    2. แก้ไขข้อมูลในไฟล์ของคุณเอง (Name, Price, Category, Image)<br>
+                    3. ไปที่ File > Share > <b>Publish to web</b> เลือกเป็น <b>CSV</b><br>
+                    4. นำลิงก์ที่ได้มาวางด้านล่างนี้
+                </p>
+                <div class="form-group">
+                    <label>ลิงก์ CSV ของคุณ</label>
+                    <input type="text" id="sheetUrlInp" placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv">
+                </div>
+                <button class="btn-block" onclick="saveSheetConfig()">เชื่อมต่อข้อมูลใหม่</button>
+                <button class="btn-block" onclick="logout()" style="background:#f5f5f4; color:#78716c; margin-top:10px;">ออกจากระบบ</button>
             </div>
         </div>
     </div>
 
+    <!-- Cart Sidebar -->
     <div id="cartSidebar" class="sidebar">
-        <div class="modal-header"><h3>ตะกร้าสินค้า</h3><button onclick="toggleCart(false)"><i class="fa-solid fa-xmark"></i></button></div>
-        <div id="cartItems" style="flex:1; overflow-y:auto; padding:20px;"></div>
-        <div style="padding:20px; border-top:2px solid var(--accent-color); background:var(--bg-light);">
-            <div style="display:flex; justify-content:space-between; font-weight:600; margin-bottom:15px;"><span>รวมทั้งหมด</span><span id="cartTotal">฿ 0</span></div>
-            <button class="btn-block">ชำระเงิน</button>
+        <div class="side-header">
+            <h3 style="font-family: 'Sriracha'; color: var(--primary-color);">ตะกร้าสินค้า</h3>
+            <button onclick="toggleCart(false)" style="background:none;"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="cartItems" class="side-content"></div>
+        <div style="padding:25px; border-top:1px solid var(--border-color); background: var(--bg-light);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px; font-weight:600; font-size: 18px; color: var(--primary-color);">
+                <span>ยอดรวมทั้งหมด</span><span id="cartTotal">฿ 0</span>
+            </div>
+            <button class="btn-block">สั่งซื้อสินค้า (ทาง Line)</button>
         </div>
     </div>
 
-    <footer>&copy; 2026 Praewa Fashion | ข้อมูลบันทึกผ่าน Firebase Firestore</footer>
+    <footer>
+        <span class="footer-logo">Praewa Fashion</span>
+        <p>&copy; 2026 Praewa Fashion | ข้อมูลโหลดรวดเร็วจาก Google Sheets</p>
+    </footer>
 
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, query, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <script>
+        // ข้อมูลตัวอย่างเริ่มต้น (กรณีดึงข้อมูลไม่สำเร็จ)
+        const defaultProducts = [
+            { name: 'เดรสหวานรุ่น Praewa-01', price: 890, category: 'เดรส', image: 'https://images.unsplash.com/photo-1515347619152-c05244ddf386?auto=format&fit=crop&q=80&w=800' },
+            { name: 'เสื้อชีฟองแขนตุ๊กตา PW-02', price: 350, category: 'เสื้อ', image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&q=80&w=800' },
+            { name: 'กระโปรงพลีทมินิมอล PW-03', price: 450, category: 'กระโปรง', image: 'https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?auto=format&fit=crop&q=80&w=800' },
+            { name: 'เดรสสายเดี่ยวลายดอก', price: 590, category: 'เดรส', image: 'https://images.unsplash.com/photo-1572804013307-f97119fdf7a7?auto=format&fit=crop&q=80&w=800' }
+        ];
 
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'praewa-fashion-id';
-
-        // Global State
         let products = [];
-        let isAdmin = false;
-        let editMode = false;
-        let currentEditId = null;
         let cart = [];
+        let activeCategory = 'ทั้งหมด';
+        let isAdmin = false;
 
-        // 1. Auth First (Rule 3)
-        const initAuth = async () => {
+        async function init() {
+            const savedUrl = localStorage.getItem('praewa_sheet_url');
+            if (savedUrl && savedUrl.trim() !== "") {
+                await loadFromSheet(savedUrl);
+            } else {
+                // ถ้าไม่มี URL ให้ใช้ข้อมูลเริ่มต้นทันที
+                useFallbackData();
+            }
+        }
+
+        function useFallbackData() {
+            products = defaultProducts;
+            renderProducts();
+            renderCategories();
+        }
+
+        async function loadFromSheet(url) {
+            const status = document.getElementById('loadingStatus');
+            status.style.display = 'block';
+            
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) {
-                console.error("Auth failed", error);
-            }
-        };
-
-        // 2. Data Listeners (Real-time)
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.getElementById('loadingOverlay').style.display = 'none';
+                // เพิ่ม cache-buster เพื่อข้อมูลที่เป็นปัจจุบันเสมอ
+                const fetchUrl = url + (url.includes('?') ? '&' : '?') + 't=' + Date.now();
+                const response = await fetch(fetchUrl);
                 
-                // Listen to Products (Rule 1 & 2)
-                const productsRef = collection(db, 'artifacts', appId, 'public', 'data', 'products');
-                onSnapshot(productsRef, (snapshot) => {
-                    products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    renderProducts();
-                }, (err) => console.error("Firestore error", err));
-            }
-        });
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const data = await response.text();
+                const rows = data.split('\n').filter(row => row.trim() !== '');
+                
+                if (rows.length < 2) throw new Error('Empty spreadsheet');
 
-        // --- Business Logic ---
-        window.renderProducts = () => {
+                products = rows.slice(1).map(row => {
+                    const cols = row.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+                    if (cols.length < 2) return null;
+                    return {
+                        name: cols[0],
+                        price: parseInt(cols[1]) || 0,
+                        category: cols[2] || 'ทั่วไป',
+                        image: cols[3] || 'https://via.placeholder.com/400x533?text=Praewa+Fashion'
+                    };
+                }).filter(p => p !== null);
+                
+                renderProducts();
+                renderCategories();
+            } catch (e) {
+                console.warn("Sheet Loading Error:", e.message);
+                // สลับไปใช้ข้อมูลสำรองหากลิงก์เสียหรือยังตั้งค่าไม่ถูก
+                useFallbackData();
+            } finally {
+                status.style.display = 'none';
+            }
+        }
+
+        function renderProducts() {
             const grid = document.getElementById('productGrid');
-            grid.innerHTML = products.map(p => `
+            const filtered = activeCategory === 'ทั้งหมด' ? products : products.filter(p => p.category === activeCategory);
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 50px; color: var(--text-muted);">ยังไม่มีสินค้าในหมวดนี้</div>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map((p, idx) => `
                 <div class="product-card">
-                    <div class="p-image">
-                        <img src="${p.image}" alt="${p.name}">
-                        ${editMode ? `
-                            <div class="admin-controls">
-                                <button class="btn-circle btn-edit" onclick="openEditProduct('${p.id}')"><i class="fa-solid fa-pen"></i></button>
-                                <button class="btn-circle btn-del" onclick="deleteProduct('${p.id}')"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        ` : ''}
-                    </div>
+                    <div class="p-image"><img src="${p.image}" alt="${p.name}" onerror="this.src='https://via.placeholder.com/400x533?text=Image+Not+Found'"></div>
                     <div class="p-content">
+                        <div style="font-size: 11px; color: var(--primary-color); font-weight: 600; margin-bottom: 5px;">${p.category}</div>
                         <div class="p-title">${p.name}</div>
-                        <div class="p-price">฿ ${Number(p.price).toLocaleString()}</div>
-                        ${!editMode ? `<button class="btn-block" style="background:none; color:var(--primary-color); border:1px solid var(--border-color);" onclick="addToCart('${p.id}')">ใส่ตะกร้า</button>` : ''}
+                        <div class="p-price">฿ ${p.price.toLocaleString()}</div>
+                        <button class="btn-add" onclick="addToCart(${products.indexOf(p)})"><i class="fas fa-plus"></i> ใส่ตะกร้า</button>
                     </div>
                 </div>
             `).join('');
+        }
 
-            if (editMode) {
-                grid.innerHTML += `
-                    <button class="add-placeholder" onclick="openAddProduct()">
-                        <i class="fa-solid fa-plus" style="font-size:24px; margin-bottom:10px;"></i>
-                        <span>เพิ่มสินค้าใหม่</span>
-                    </button>
-                `;
-            }
-        };
+        function renderCategories() {
+            const cats = ['ทั้งหมด', ...new Set(products.map(p => p.category))];
+            const bar = document.getElementById('categoryBar');
+            bar.innerHTML = cats.map(cat => `
+                <button class="filter-btn ${activeCategory === cat ? 'active' : ''}" onclick="setCategory('${cat}')">${cat}</button>
+            `).join('');
+        }
 
-        window.saveProduct = async () => {
-            if (!auth.currentUser) return;
-            const name = document.getElementById('pNameInp').value;
-            const price = document.getElementById('pPriceInp').value;
-            const image = document.getElementById('pImgInp').value || 'https://via.placeholder.com/300x400';
-            
-            if (!name || !price) return;
+        function setCategory(cat) {
+            activeCategory = cat;
+            renderCategories();
+            renderProducts();
+        }
 
-            const btn = document.getElementById('saveProductBtn');
-            btn.disabled = true;
-            btn.innerText = "กำลังบันทึก...";
+        // Admin Auth
+        function openAdmin() { document.getElementById('adminModal').style.display = 'flex'; }
+        function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); }
 
-            try {
-                if (currentEditId) {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'products', currentEditId);
-                    await setDoc(docRef, { name, price, image });
-                } else {
-                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'products');
-                    await addDoc(colRef, { name, price, image });
-                }
-                window.closeModals();
-            } catch (e) {
-                console.error("Save error", e);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "บันทึกลง Cloud";
-            }
-        };
-
-        window.deleteProduct = async (id) => {
-            if (!auth.currentUser || !confirm("ลบสินค้านี้ใช่หรือไม่?")) return;
-            try {
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'products', id);
-                await deleteDoc(docRef);
-            } catch (e) { console.error(e); }
-        };
-
-        // --- UI Interactions ---
-        window.handleAdminLogin = () => {
-            if (isAdmin) {
-                editMode = !editMode;
-                updateAdminUI();
-                renderProducts();
-            } else {
-                document.getElementById('loginModal').style.display = 'flex';
-            }
-        };
-
-        window.doLogin = () => {
+        function doLogin() {
             const u = document.getElementById('userInp').value;
             const p = document.getElementById('passInp').value;
             if (u === 'admin1234' && p === 'admin1234') {
                 isAdmin = true;
-                editMode = true;
-                window.closeModals();
-                updateAdminUI();
-                renderProducts();
-            } else { alert("รหัสผิด!"); }
-        };
-
-        window.logout = () => {
-            isAdmin = false;
-            editMode = false;
-            updateAdminUI();
-            renderProducts();
-        };
-
-        function updateAdminUI() {
-            const icon = document.getElementById('adminIcon');
-            const logoutBtn = document.getElementById('logoutBtn');
-            logoutBtn.style.display = isAdmin ? 'inline-block' : 'none';
-            icon.className = editMode ? 'fa-solid fa-check' : 'fa-solid fa-gear';
-            document.getElementById('adminBtn').style.color = editMode ? '#ff4785' : '';
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('configSection').style.display = 'block';
+                document.getElementById('sheetUrlInp').value = localStorage.getItem('praewa_sheet_url') || '';
+            } else { 
+                alert("รหัสผ่านไม่ถูกต้อง!"); 
+            }
         }
 
-        window.openAddProduct = () => {
-            currentEditId = null;
-            document.getElementById('pModalTitle').innerText = 'เพิ่มสินค้า';
-            document.getElementById('pNameInp').value = '';
-            document.getElementById('pPriceInp').value = '';
-            document.getElementById('pImgInp').value = '';
-            document.getElementById('productModal').style.display = 'flex';
-        };
+        function logout() {
+            isAdmin = false;
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('configSection').style.display = 'none';
+        }
 
-        window.openEditProduct = (id) => {
-            const p = products.find(x => x.id === id);
-            currentEditId = id;
-            document.getElementById('pModalTitle').innerText = 'แก้ไขสินค้า';
-            document.getElementById('pNameInp').value = p.name;
-            document.getElementById('pPriceInp').value = p.price;
-            document.getElementById('pImgInp').value = p.image;
-            document.getElementById('productModal').style.display = 'flex';
-        };
+        function saveSheetConfig() {
+            const url = document.getElementById('sheetUrlInp').value.trim();
+            if (url && !url.includes('csv')) {
+                alert("ลิงก์ต้องเป็นรูปแบบ CSV เท่านั้น (ลงท้ายด้วย output=csv)");
+                return;
+            }
+            localStorage.setItem('praewa_sheet_url', url);
+            if (url) {
+                loadFromSheet(url);
+            } else {
+                useFallbackData();
+            }
+            closeModals();
+            alert("บันทึกการเชื่อมต่อเรียบร้อย!");
+        }
 
-        window.addToCart = (id) => {
-            const p = products.find(x => x.id === id);
+        // Cart Actions
+        function addToCart(idx) {
+            const p = products[idx];
             cart.push(p);
-            updateCartUI();
-            window.toggleCart(true);
-        };
+            updateCart();
+            toggleCart(true);
+        }
 
-        window.removeFromCart = (idx) => {
+        function removeFromCart(idx) {
             cart.splice(idx, 1);
-            updateCartUI();
-        };
+            updateCart();
+        }
 
-        function updateCartUI() {
+        function updateCart() {
             const list = document.getElementById('cartItems');
             const totalEl = document.getElementById('cartTotal');
             let total = 0;
-            list.innerHTML = cart.map((item, idx) => {
-                total += Number(item.price);
+            
+            list.innerHTML = cart.map((item, i) => {
+                total += item.price;
                 return `
-                    <div style="display:flex; gap:10px; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
-                        <img src="${item.image}" style="width:50px; height:65px; object-fit:cover; border-radius:5px;">
+                    <div class="cart-item">
+                        <img src="${item.image}" onerror="this.src='https://via.placeholder.com/60x80'">
                         <div style="flex:1;">
-                            <div style="font-size:12px; font-weight:500;">${item.name}</div>
-                            <div style="color:var(--primary-color);">฿ ${Number(item.price).toLocaleString()}</div>
+                            <div style="font-size:13px; font-weight:500;">${item.name}</div>
+                            <div style="color:var(--primary-color); font-weight:600;">฿ ${item.price.toLocaleString()}</div>
                         </div>
-                        <button onclick="removeFromCart(${idx})" style="background:none; color:red;"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="removeFromCart(${i})" style="background:none; color: #ccc;"><i class="fas fa-trash"></i></button>
                     </div>
                 `;
             }).join('');
+            
+            if (cart.length === 0) list.innerHTML = '<p style="text-align:center; padding-top:40px; color:#ccc;">ตะกร้าว่างเปล่า</p>';
+            
             document.getElementById('cartBadge').innerText = cart.length;
             document.getElementById('cartBadge').style.display = cart.length > 0 ? 'flex' : 'none';
             totalEl.innerText = `฿ ${total.toLocaleString()}`;
         }
 
-        window.toggleCart = (open) => document.getElementById('cartSidebar').classList.toggle('open', open);
-        window.closeModals = () => document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+        function toggleCart(open) { 
+            document.getElementById('cartSidebar').classList.toggle('open', open); 
+        }
 
-        // Run Init
-        initAuth();
-
+        window.onload = init;
     </script>
 </body>
 </html>
